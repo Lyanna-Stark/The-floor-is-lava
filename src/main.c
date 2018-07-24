@@ -111,6 +111,7 @@ void lego_man(){
 		
 }
 
+
 static void on_display(void){
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
@@ -118,7 +119,7 @@ static void on_display(void){
 	glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 	//iz svih uglova
-	gluLookAt(6, 6, 10, 0, 0, 0, 0, 1, 0);
+	gluLookAt(4, 4, 10, 0, 0, 0, 0, 1, 0);
 	//front
 	//gluLookAt(0, 0, 10, 0, 0, 0, 0, 1, 0);
 	// profil
