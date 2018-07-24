@@ -63,7 +63,7 @@ void lego_man(){
 	
 	//noge
 	glPushMatrix();
-		glColor3f(0, 0, 0.4);
+		glColor3f(0, 0, .4);
 		glTranslatef(-.35, -1.5, 0);
 		glScalef(.3, 1.5, .3);
 		glutSolidCube(1);
@@ -80,7 +80,7 @@ void lego_man(){
 	//vrat 
 	glPushMatrix();  
 		glColor3f(.8, .65, .45);
-		glTranslatef(0, 0.86, 0);
+		glTranslatef(0, .86, 0);
 		glScalef(.3, .3, .3);
 		glutSolidCube(1);
 	glPopMatrix();
