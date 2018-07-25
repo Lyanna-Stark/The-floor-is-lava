@@ -6,6 +6,7 @@
 
 static void on_reshape(int width, int height);
 static void on_display(void);
+static void svetlo();
 
 int main(int argc, char** argv){
 	//inicijalizujemo glut
@@ -24,6 +25,8 @@ int main(int argc, char** argv){
 	glClearColor(0, 0, 0, 0);
     glEnable(GL_DEPTH_TEST);
 	
+	svetlo();
+	
 	//glavna petlja
 	glutMainLoop();
 	return 0;
@@ -39,7 +42,31 @@ static void on_reshape(int width, int height) {
     gluPerspective(50, (float) width / height, 1, 1700);
 }
 
+
+static void svetlo(){
+	
+	glEnable(GL_NORMALIZE);
+
+	//namesta se difuzno svetlo
+    float diffuse_light[] = {1, 1, 1, 1};    glLightfv(GL_LIGHT0, GL_DIFFUSE, diffuse_light);
+	glColorMaterial(GL_FRONT, GL_DIFFUSE);
+
+    glEnable(GL_LIGHTING);
+    glEnable(GL_LIGHT0);
+	glEnable(GL_COLOR_MATERIAL);
+	
+}
 void lego_man(){
+	//da bi se videlo svetlo
+	glColorMaterial(GL_FRONT, GL_DIFFUSE);
+	glEnable(GL_COLOR_MATERIAL);
+	
+	/*
+	 * 
+	 * CRTAMO COVEKA
+	 * 
+	 */
+	
 	//trup
 	glPushMatrix();    
 		glColor3f(1, 0, 0);
@@ -114,6 +141,7 @@ void lego_man(){
 
 static void on_display(void){
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	
 	
 	//podesavamo lookat
 	glMatrixMode(GL_MODELVIEW);
