@@ -7,6 +7,9 @@
 static void on_reshape(int width, int height);
 static void on_display(void);
 static void svetlo();
+static void lego_man();
+static void lava_floor();
+static void rock();
 
 int main(int argc, char** argv){
 	//inicijalizujemo glut
@@ -42,20 +45,24 @@ static void on_reshape(int width, int height) {
     gluPerspective(50, (float) width / height, 1, 1700);
 }
 
-
 static void svetlo(){
 	
 	glEnable(GL_NORMALIZE);
 
 	//namesta se difuzno svetlo
-    float diffuse_light[] = {1, 1, 1, 1};    glLightfv(GL_LIGHT0, GL_DIFFUSE, diffuse_light);
+    float diffuse_light[] = {1, 1, 1, 1};    
+	glLightfv(GL_LIGHT0, GL_DIFFUSE, diffuse_light);
 	glColorMaterial(GL_FRONT, GL_DIFFUSE);
 
     glEnable(GL_LIGHTING);
     glEnable(GL_LIGHT0);
 	glEnable(GL_COLOR_MATERIAL);
 	
+	float light[] = {40, 40, 40, 0};
+	glLightfv(GL_LIGHT0, GL_POSITION, light);
+	
 }
+
 void lego_man(){
 	//da bi se videlo svetlo
 	glColorMaterial(GL_FRONT, GL_DIFFUSE);
@@ -138,6 +145,44 @@ void lego_man(){
 		
 }
 
+static void lava_floor(){
+
+	glPushMatrix();
+	//glTranslatef(0, 0, 0);
+	glBegin(GL_QUADS);
+		glColor3f(.941, .4, 0);
+		glVertex3f(0, 0,50);
+		glVertex3f(100,0,50);
+		glVertex3f(100, 0, -50);
+		glVertex3f(0, 0, -50);
+	glEnd();
+
+	glPopMatrix();
+
+}
+
+static void rock(){
+	glPushMatrix();    
+		glColor3f(.3, .3, .3);
+		glScalef(2, .3, 2);
+		glutSolidCube(1);
+	glPopMatrix();
+
+	glPushMatrix();
+		glTranslatef(0, .3, 0);
+		glColor3f(.3, .3, .3);
+		glScalef(1.8, .25, 1.8);
+		glutSolidCube(1);
+	glPopMatrix();
+
+	glPushMatrix();
+		glTranslatef(0, .55, 0);
+		glColor3f(.3, .3, .3);
+		glScalef(1.6, .15, 1.6);
+		glutSolidCube(1);
+	glPopMatrix();
+
+}
 
 static void on_display(void){
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -147,17 +192,34 @@ static void on_display(void){
 	glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 	//iz svih uglova
-	gluLookAt(4, 4, 10, 0, 0, 0, 0, 1, 0);
+	gluLookAt(-20, 5, 0, 0, 0, 0, 0, 1, 0);
 	//front
 	//gluLookAt(0, 0, 10, 0, 0, 0, 0, 1, 0);
 	// profil
 	//gluLookAt(10, 0, 0, 0, 0, 0, 0, 1, 0);
 
+	//crtamo pod	
+	glPushMatrix();
+		glTranslatef(-10, 0,0);
+		lava_floor();   	
+	glPopMatrix();	
+
+	glPushMatrix();
+		glTranslatef(0, 0,0);
+		rock();
+	glPopMatrix();	
+
 	//crtamo coveka
     glPushMatrix();
-      lego_man();
+		glTranslatef(0, 3,0);
+		lego_man();
 	glPopMatrix();	
 	
 	//nova slika
 	glutSwapBuffers();
 }
+
+
+
+
+
