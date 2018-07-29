@@ -3,6 +3,10 @@
 #include <GL/glut.h>
 #include <time.h>
 
+#define TIMER_ID 0
+#define TIMER_INTERVAL 20
+#define JUMP_LEN 5
+#define JUMP_HEIGHT 2
 
 static void on_reshape(int width, int height);
 static void on_display(void);
@@ -10,6 +14,15 @@ static void svetlo();
 static void lego_man();
 static void lava_floor();
 static void rock();
+static void on_keyboard(unsigned char key, int x, int y);
+static void on_timer(int value);
+
+static int jump_ongoing;
+static double x;
+static double y;
+static double z_old;
+static double z;
+static double z_jumped;
 
 int main(int argc, char** argv){
 	//inicijalizujemo glut
@@ -24,10 +37,15 @@ int main(int argc, char** argv){
 	//inicijalizuje se on display funkcija
 	glutDisplayFunc(on_display);
 	glutReshapeFunc(on_reshape);
+	glutKeyboardFunc(on_keyboard);
 	
 	glClearColor(0, 0, 0, 0);
     glEnable(GL_DEPTH_TEST);
 	
+	jump_ongoing=0;
+	x=0;
+	y=0;
+	z=0;
 	svetlo();
 	
 	//glavna petlja
@@ -35,6 +53,7 @@ int main(int argc, char** argv){
 	return 0;
 }
 
+//TODO 
 static void on_reshape(int width, int height) {
 	//viewport
 	glViewport(0, 0, width, height);
@@ -58,7 +77,7 @@ static void svetlo(){
     glEnable(GL_LIGHT0);
 	glEnable(GL_COLOR_MATERIAL);
 	
-	float light[] = {40, 40, 40, 0};
+	float light[] = {100, 40, 40, 0};
 	glLightfv(GL_LIGHT0, GL_POSITION, light);
 	
 }
@@ -146,41 +165,106 @@ void lego_man(){
 }
 
 static void lava_floor(){
+	
+	glColorMaterial(GL_FRONT, GL_DIFFUSE);
+	glEnable(GL_COLOR_MATERIAL);
 
+	//funkcija koja crta pod od lave
+	
 	glPushMatrix();
-	//glTranslatef(0, 0, 0);
-	glBegin(GL_QUADS);
-		glColor3f(.941, .4, 0);
-		glVertex3f(0, 0,50);
-		glVertex3f(100,0,50);
-		glVertex3f(100, 0, -50);
-		glVertex3f(0, 0, -50);
-	glEnd();
-
+		glBegin(GL_QUADS);
+			glColor3f(.941, .4, 0);
+			glVertex3f(0, 0,50);
+			glVertex3f(100,0,50);
+			glVertex3f(100, 0, -50);
+			glVertex3f(0, 0, -50);
+		glEnd();
 	glPopMatrix();
 
 }
 
 static void rock(){
+	
+	glColorMaterial(GL_FRONT, GL_DIFFUSE);
+	glEnable(GL_COLOR_MATERIAL);
+
+	//funkcija koja crta kamen, prvo bazu
+	
 	glPushMatrix();    
 		glColor3f(.3, .3, .3);
 		glScalef(2, .3, 2);
 		glutSolidCube(1);
 	glPopMatrix();
-
+	
+	//sredina
 	glPushMatrix();
 		glTranslatef(0, .3, 0);
 		glColor3f(.3, .3, .3);
 		glScalef(1.8, .25, 1.8);
 		glutSolidCube(1);
 	glPopMatrix();
-
+	
+	//vrh
 	glPushMatrix();
 		glTranslatef(0, .55, 0);
 		glColor3f(.3, .3, .3);
 		glScalef(1.6, .15, 1.6);
 		glutSolidCube(1);
 	glPopMatrix();
+
+}
+
+
+
+static void on_keyboard(unsigned char key, int x, int y){
+	switch (key) {
+	
+	//ako je pritisnut esc izlazimo iz programa
+	case 27:
+		exit(EXIT_SUCCESS);
+		break;
+	case 'j':
+	case 'J':
+	//skace, j_jumped se resetuje na pocetku svakog skoka
+		z_jumped=0;
+		glutTimerFunc(TIMER_INTERVAL, on_timer, 0);
+    break;
+
+  }
+}
+
+
+
+static void on_timer(int value)
+{
+	//proverava se da li callback dolazi od odgovarajuceg tajmera
+	if (value != TIMER_ID)
+        return;
+	
+	//skacemo po 0.05 odjednom, da ne bi seckala animacija
+	z_jumped+=0.05;
+	z+=0.05;
+	
+	/*
+	 * ovo je formula koju sam izvela direktno iz y=a*z*z+b*z+c
+	 * ako su z1=0 i z2=MAX_LEN i y(z1)=y(z2)=0
+	 * 	a z3=JUMP_LEN y(z3)=JUMP_HEIGHT tj globalni maksimum 
+	 * 	onda je a=-4*JUMP_HEIGHT/(JUMP_LEN*JUMP_LEN)
+	 * 	b=4*JUMP_HEIGHT/JUMP_LEN
+	 *	a z je z_jumped jer se pri svakom skoku z_jumped resetuje na nulu dok z nastavlja da se povecava
+	
+	*/
+	y=(-4*JUMP_HEIGHT*z_jumped*z_jumped)/(JUMP_LEN*JUMP_LEN)+4*JUMP_HEIGHT*z_jumped/JUMP_LEN;
+	
+	
+	//ponovo se iscrtava prozor	
+	glutPostRedisplay();
+
+	//ako je presao dovoljno prestaje da skace
+	if(z_jumped<JUMP_LEN){
+		glutTimerFunc(TIMER_INTERVAL, on_timer, TIMER_ID);
+	}
+	
 
 }
 
@@ -198,22 +282,30 @@ static void on_display(void){
 	// profil
 	//gluLookAt(10, 0, 0, 0, 0, 0, 0, 1, 0);
 
+	//crtamo coveka
+    glPushMatrix();
+		glTranslatef(0, y+3, z);
+		lego_man();
+	glPopMatrix();	
+	
 	//crtamo pod	
 	glPushMatrix();
 		glTranslatef(-10, 0,0);
 		lava_floor();   	
 	glPopMatrix();	
 
+	//crtamo prvi kamen
 	glPushMatrix();
 		glTranslatef(0, 0,0);
 		rock();
 	glPopMatrix();	
-
-	//crtamo coveka
-    glPushMatrix();
-		glTranslatef(0, 3,0);
-		lego_man();
+	
+	//crtamo drugi kamen na udaljenosti JUMP_LEN
+	glPushMatrix();
+		glTranslatef(0, 0,5);
+		rock();
 	glPopMatrix();	
+
 	
 	//nova slika
 	glutSwapBuffers();
