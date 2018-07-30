@@ -42,11 +42,11 @@ int main(int argc, char** argv){
 	glClearColor(0, 0, 0, 0);
     glEnable(GL_DEPTH_TEST);
 	
+	svetlo();
 	jump_ongoing=0;
 	x=0;
 	y=0;
 	z=0;
-	svetlo();
 	
 	//glavna petlja
 	glutMainLoop();
@@ -166,8 +166,8 @@ void lego_man(){
 
 static void lava_floor(){
 	
-	glColorMaterial(GL_FRONT, GL_DIFFUSE);
-	glEnable(GL_COLOR_MATERIAL);
+	//glColorMaterial(GL_FRONT, GL_DIFFUSE);
+	//glEnable(GL_COLOR_MATERIAL);
 
 	//funkcija koja crta pod od lave
 	
@@ -185,8 +185,8 @@ static void lava_floor(){
 
 static void rock(){
 	
-	glColorMaterial(GL_FRONT, GL_DIFFUSE);
-	glEnable(GL_COLOR_MATERIAL);
+	//glColorMaterial(GL_FRONT, GL_DIFFUSE);
+	//glEnable(GL_COLOR_MATERIAL);
 
 	//funkcija koja crta kamen, prvo bazu
 	
@@ -256,7 +256,6 @@ static void on_timer(int value)
 	*/
 	y=(-4*JUMP_HEIGHT*z_jumped*z_jumped)/(JUMP_LEN*JUMP_LEN)+4*JUMP_HEIGHT*z_jumped/JUMP_LEN;
 	
-	
 	//ponovo se iscrtava prozor	
 	glutPostRedisplay();
 
@@ -269,30 +268,35 @@ static void on_timer(int value)
 }
 
 static void on_display(void){
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
 	//podesavamo lookat
 	glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 	//iz svih uglova
-	gluLookAt(-20, 5, 0, 0, 0, 0, 0, 1, 0);
+	gluLookAt(-30, 5, 0, 0, 0, 0, 0, 1, 0);
 	//front
 	//gluLookAt(0, 0, 10, 0, 0, 0, 0, 1, 0);
 	// profil
 	//gluLookAt(10, 0, 0, 0, 0, 0, 0, 1, 0);
 
+
+	glColorMaterial(GL_FRONT_AND_BACK, GL_DIFFUSE);
+	glEnable(GL_COLOR_MATERIAL);
+
+	//crtamo pod	
+	glPushMatrix();
+		glTranslatef(-10, 0,0);
+		lava_floor();   	
+	glPopMatrix();	
+	
 	//crtamo coveka
     glPushMatrix();
 		glTranslatef(0, y+3, z);
 		lego_man();
 	glPopMatrix();	
 	
-	//crtamo pod	
-	glPushMatrix();
-		glTranslatef(-10, 0,0);
-		lava_floor();   	
-	glPopMatrix();	
 
 	//crtamo prvi kamen
 	glPushMatrix();
@@ -300,7 +304,7 @@ static void on_display(void){
 		rock();
 	glPopMatrix();	
 	
-	//crtamo drugi kamen na udaljenosti JUMP_LEN
+	//crtamo drugi kamen na udaljenosti JUMP
 	glPushMatrix();
 		glTranslatef(0, 0,5);
 		rock();
