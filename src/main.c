@@ -294,9 +294,9 @@ static void on_timer(int value)
         return;
 	switch(direction){
 		case FORWARD:
-			//skacemo po 0.05 odjednom, da ne bi seckala animacija
-			z_jumped+=0.05;
-			z+=0.05;
+			//skacemo po 0.1 odjednom, da ne bi seckala animacija
+			z_jumped+=.1;
+			z+=0.1;
 			
 			/*
 			* ovo je formula koju sam izvela direktno iz y=a*z*z+b*z+c
@@ -321,9 +321,9 @@ static void on_timer(int value)
 			}
 			break;
 		case LEFT:
-			//skacemo po 0.05 odjednom, da ne bi seckala animacija
-			l_jumped+=0.05;
-			x+=0.05;
+			//skacemo po 0.1 odjednom, da ne bi seckala animacija
+			l_jumped+=.1;
+			x+=.1;
 			
 			//formula kao gore
 			y=(-4*JUMP_HEIGHT*l_jumped*l_jumped)/(JUMP_LEN*JUMP_LEN)+4*JUMP_HEIGHT*l_jumped/JUMP_LEN;
@@ -341,9 +341,9 @@ static void on_timer(int value)
 
 			break;
 		case RIGHT:
-			//skacemo po 0.05 odjednom, da ne bi seckala animacija
-			r_jumped+=0.05;
-			x-=0.05;
+			//skacemo po 0.1 odjednom, da ne bi seckala animacija
+			r_jumped+=.1;
+			x-=.1;
 			
 			//formula kao gore
 			y=(-4*JUMP_HEIGHT*r_jumped*r_jumped)/(JUMP_LEN*JUMP_LEN)+4*JUMP_HEIGHT*r_jumped/JUMP_LEN;
