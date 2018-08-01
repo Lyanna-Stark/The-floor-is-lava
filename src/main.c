@@ -49,12 +49,13 @@ int main(int argc, char** argv){
 	glClearColor(0, 0, 0, 0);
     glEnable(GL_DEPTH_TEST);
 	
-	svetlo();
 	jump_ongoing=0;
 	x=0;
 	y=0;
 	z=0;
 	
+	svetlo();
+
 	//glavna petlja
 	glutMainLoop();
 	return 0;
@@ -78,7 +79,7 @@ static void svetlo(){
 	//namesta se difuzno svetlo
     float diffuse_light[] = {1, 1, 1, 1};    
 	glLightfv(GL_LIGHT0, GL_DIFFUSE, diffuse_light);
-	glColorMaterial(GL_FRONT, GL_DIFFUSE);
+	//glColorMaterial(GL_FRONT, GL_DIFFUSE);
 
     glEnable(GL_LIGHTING);
     glEnable(GL_LIGHT0);
@@ -236,6 +237,11 @@ static void draw_islands(){
 	glPopMatrix();	
 }
 
+static void generate_path(){
+	
+	
+}
+
 static void on_keyboard(unsigned char key, int x, int y){
 	switch (key) {
 	
@@ -247,25 +253,34 @@ static void on_keyboard(unsigned char key, int x, int y){
 	case 'w':
 	case 'W':
 	//skace napred, z_jumped se resetuje na pocetku svakog skoka
-		direction=FORWARD;
-		z_jumped=0;
-		glutTimerFunc(TIMER_INTERVAL, on_timer, 0);
+		if(jump_ongoing==0){
+			direction=FORWARD;
+			z_jumped=0;
+			jump_ongoing=1;
+			glutTimerFunc(TIMER_INTERVAL, on_timer, 0);
+		}
     break;
 	
 	case 'a':
 	case 'A':
 	//skace levo, l_jumped se resetuje na pocetku svakog skoka
-		direction=LEFT;
-		l_jumped=0;
-		glutTimerFunc(TIMER_INTERVAL, on_timer, 0);
+		if(jump_ongoing==0){
+			direction=LEFT;
+			l_jumped=0;
+			jump_ongoing=1;
+			glutTimerFunc(TIMER_INTERVAL, on_timer, 0);
+		}
     break;
 	
 	case 'd':
 	case 'D':
 	//skace desno, r_jumped se resetuje na pocetku svakog skoka
-		direction=RIGHT;
-		r_jumped=0;
-		glutTimerFunc(TIMER_INTERVAL, on_timer, 0);
+		if(jump_ongoing==0){
+			direction=RIGHT;
+			r_jumped=0;
+			jump_ongoing=1;
+			glutTimerFunc(TIMER_INTERVAL, on_timer, 0);
+		}
     break;
 
   }
@@ -301,6 +316,9 @@ static void on_timer(int value)
 			if(z_jumped<JUMP_LEN){
 				glutTimerFunc(TIMER_INTERVAL, on_timer, TIMER_ID);
 			}
+			else{
+				jump_ongoing=0;
+			}
 			break;
 		case LEFT:
 			//skacemo po 0.05 odjednom, da ne bi seckala animacija
@@ -316,7 +334,11 @@ static void on_timer(int value)
 			//ako je presao dovoljno prestaje da skace
 			if(l_jumped<JUMP_LEN){
 				glutTimerFunc(TIMER_INTERVAL, on_timer, TIMER_ID);
+			}			
+			else{
+				jump_ongoing=0;
 			}
+
 			break;
 		case RIGHT:
 			//skacemo po 0.05 odjednom, da ne bi seckala animacija
@@ -332,7 +354,11 @@ static void on_timer(int value)
 			//ako je presao dovoljno prestaje da skace
 			if(r_jumped<JUMP_LEN){
 				glutTimerFunc(TIMER_INTERVAL, on_timer, TIMER_ID);
+			}			
+			else{
+				jump_ongoing=0;
 			}
+
 			break;
 
 	}
@@ -353,7 +379,6 @@ static void on_display(void){
 	// profil
 	//gluLookAt(10, 0, 0, 0, 0, 0, 0, 1, 0);
 
-
 	glColorMaterial(GL_FRONT_AND_BACK, GL_DIFFUSE);
 	glEnable(GL_COLOR_MATERIAL);
 
@@ -369,19 +394,11 @@ static void on_display(void){
 		lego_man();
 	glPopMatrix();	
 	
+	//crtamo bezbedna ostrva
 	draw_islands();
-
-	//crtamo prvi kamen
-	glPushMatrix();
-		glTranslatef(0, 0,0);
-		rock();
-	glPopMatrix();	
 	
-	//crtamo drugi kamen na udaljenosti JUMP
-	glPushMatrix();
-		glTranslatef(0, 0,5);
-		rock();
-	glPopMatrix();	
+	//crtamo put od ostrva do ostrva
+	generate_path();
 
 	
 	//nova slika
