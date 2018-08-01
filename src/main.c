@@ -13,6 +13,7 @@
 #define BACK 3
 
 static void draw_islands();
+static void island();
 static void on_reshape(int width, int height);
 static void on_display(void);
 static void svetlo();
@@ -191,6 +192,35 @@ static void lava_floor(){
 	
 }
 
+
+static void island(){
+	
+	//funkcija koja crta ostrvo, slicna onoj za kamen, crta prvo bazu
+	
+	glPushMatrix();    
+		glColor3f(.3, .3, .3);
+		glScalef(2, .3, 2);
+		glutSolidCube(1);
+	glPopMatrix();
+	
+	//sredina
+	glPushMatrix();
+		glTranslatef(0, .3, 0);
+		glColor3f(.3, .3, .3);
+		glScalef(1.93, .25, 1.93);
+		glutSolidCube(1);
+	glPopMatrix();
+	
+	//vrh
+	glPushMatrix();
+		glTranslatef(0, .55, 0);
+		glColor3f(.3, .3, .3);
+		glScalef(1.86, .15, 1.86);
+		glutSolidCube(1);
+	glPopMatrix();
+
+}
+
 static void rock(){
 	
 	//glColorMaterial(GL_FRONT, GL_DIFFUSE);
@@ -226,16 +256,16 @@ static void draw_islands(){
 	
 	//crtamo prvo ostrvo
 	glPushMatrix();
-		glTranslatef(0, 0,-23);
-		glScalef(10, 1, 10);
-		rock();
+		glTranslatef(0, 0,-29);
+		glScalef(15, 1, 15);
+		island();
 	glPopMatrix();	
 	
 	//crtamo drugo ostrvo
 	glPushMatrix();
-		glTranslatef(0, 0, 23);		
-		glScalef(10, 1, 10);
-		rock();
+		glTranslatef(0, 0, 29);		
+		glScalef(15, 1, 15);
+		island();
 	glPopMatrix();	
 }
 
