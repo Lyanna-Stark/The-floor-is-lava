@@ -10,6 +10,7 @@
 #define FORWARD 0
 #define LEFT 1
 #define RIGHT 2
+#define BACK 3
 
 static void draw_islands();
 static void on_reshape(int width, int height);
@@ -27,6 +28,7 @@ static double y;
 static double z;
 static double z_jumped;
 static double l_jumped;
+static double b_jumped;
 static double r_jumped;
 
 static int direction;
@@ -282,6 +284,17 @@ static void on_keyboard(unsigned char key, int x, int y){
 			glutTimerFunc(TIMER_INTERVAL, on_timer, 0);
 		}
     break;
+	
+	case 's':
+	case 'S':
+	//skace nazad, b_jumped se resetuje na pocetku svakog skoka
+		if(jump_ongoing==0){
+			direction=BACK;
+			b_jumped=0;
+			jump_ongoing=1;
+			glutTimerFunc(TIMER_INTERVAL, on_timer, 0);
+		}
+    break;
 
   }
 }
@@ -361,6 +374,25 @@ static void on_timer(int value)
 
 			break;
 
+		case BACK:
+			//skacemo po 0.1 odjednom, da ne bi seckala animacija
+			b_jumped+=.1;
+			z-=0.1;
+			
+			
+			y=(-4*JUMP_HEIGHT*b_jumped*b_jumped)/(JUMP_LEN*JUMP_LEN)+4*JUMP_HEIGHT*b_jumped/JUMP_LEN;
+			
+			//ponovo se iscrtava prozor	
+			glutPostRedisplay();
+
+			//ako je presao dovoljno prestaje da skace
+			if(b_jumped<JUMP_LEN){
+				glutTimerFunc(TIMER_INTERVAL, on_timer, TIMER_ID);
+			}
+			else{
+				jump_ongoing=0;
+			}
+			break;
 	}
 
 }
