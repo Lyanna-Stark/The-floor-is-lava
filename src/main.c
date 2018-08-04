@@ -14,6 +14,8 @@
 #define DIAG_RIGHT 4
 #define BACK 5
 
+static int check_existing_rock(int x, int z, int num_of_rocks);
+static void rock_line(int z_coord);
 static void draw_path();
 static void generate_path();
 static void draw_islands();
@@ -71,7 +73,14 @@ int main(int argc, char** argv){
 	glutMainLoop();
 	return 0;
 }
-
+static int check_existing_rock(int x, int z, int num_of_rocks){
+	int i;
+	for(i=0; i<num_of_rocks; i++){
+		if(path_x[i]==x && path_z[i]==z)
+			return 1;
+	}
+	return 0;
+}
 
 static void on_reshape(int width, int height) {
 	//viewport
@@ -285,7 +294,9 @@ static void rock_line(int z_coord){
 		switch(next_dir){
 			case LEFT:
 				//ako je ispalo da je naredni kamen levo od prethodnog, z koordinata ostaje ista, nastavljamo dalje da generisemo
-				if(path_x[num_of_rocks-1]<10){
+				if(path_x[num_of_rocks-1]<10 && !check_existing_rock(path_x[num_of_rocks-1]+5, z_coord, num_of_rocks+1)){
+					
+					
 					path_x[num_of_rocks]=path_x[num_of_rocks-1]+5;
 					path_z[num_of_rocks]=z_coord;
 					last_z=z_coord;
@@ -295,7 +306,7 @@ static void rock_line(int z_coord){
 			case RIGHT:				
 				//ako je ispalo da je naredni kamen desno od prethodnog, z koordinata ostaje ista, nastavljamo dalje da generisemo
 
-				if(path_x[num_of_rocks-1]>-10){
+				if(path_x[num_of_rocks-1]>-10 && !check_existing_rock(path_x[num_of_rocks-1]-5, z_coord, num_of_rocks+1)){
 					path_x[num_of_rocks]=path_x[num_of_rocks-1]-5;
 					path_z[num_of_rocks]=z_coord;
 					last_z=z_coord;
@@ -316,7 +327,7 @@ static void rock_line(int z_coord){
 			case DIAG_RIGHT:				
 				//ako je ispalo da je naredni kamen dijagonalno desno od prethodnog, z koordinata se povecava
 
-				if(path_x[num_of_rocks-1]>-10){
+				if(path_x[num_of_rocks-1]>-10 && !check_existing_rock(path_x[num_of_rocks-1]-5, z_coord, num_of_rocks+1)){
 					path_x[num_of_rocks]=path_x[num_of_rocks-1]-5;
 					path_z[num_of_rocks]=z_coord+5;
 					last_z=z_coord+5;
@@ -359,7 +370,7 @@ static void generate_path(){
 	rock_line(0);
 	rock_line(5);
 	
-	//resetujemo new_level promenljivu da ne bi pri svakom pokretanju animacije generisao novu stazu
+	//resetujemo new_level promenljivu da ne bi pri svakom pokretanju animacije generisao novu stazucd
 	new_level=0;
 }
 static void draw_path(){
