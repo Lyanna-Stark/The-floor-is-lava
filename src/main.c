@@ -10,7 +10,9 @@
 #define FORWARD 0
 #define LEFT 1
 #define RIGHT 2
-#define BACK 3
+#define DIAG_LEFT 3
+#define DIAG_RIGHT 4
+#define BACK 5
 
 static void draw_path();
 static void generate_path();
@@ -34,10 +36,7 @@ static int jump_ongoing;
 static double x;
 static double y;
 static double z;
-static double z_jumped;
-static double l_jumped;
-static double b_jumped;
-static double r_jumped;
+static double jumped;
 
 static int direction;
 
@@ -283,7 +282,11 @@ static void generate_path(){
 	time_t t;
 	//broj kamenja
 	num_of_rocks=0;
+	
+	//random seed
 	srand((unsigned) time(&t));
+	
+	//x koordinata prvog kamena, moguce vrednosti -10, -5, 0, 5, 10
 	int rand_pos=-2+rand()%5;
 	path_x[0]=rand_pos*5;
 	path_z[0]=-10;
@@ -291,8 +294,9 @@ static void generate_path(){
 	
 	
 	
+	
+	
 	new_level=0;
-	draw_path();
 }
 static void draw_path(){
 	//funkcija koja iscrtava vec generisanu stazu pomocu x i z koordinata upisanih u dva niza
@@ -314,12 +318,12 @@ static void on_keyboard(unsigned char key, int x, int y){
 		exit(EXIT_SUCCESS);
 		break;
 		
-	case 'w':
-	case 'W':
-	//skace napred, z_jumped se resetuje na pocetku svakog skoka
+	case 'd':
+	case 'D':
+	//skace napred, jumped se resetuje na pocetku svakog skoka
 		if(jump_ongoing==0){
 			direction=FORWARD;
-			z_jumped=0;
+			jumped=0;
 			jump_ongoing=1;
 			glutTimerFunc(TIMER_INTERVAL, on_timer, 0);
 		}
@@ -327,32 +331,55 @@ static void on_keyboard(unsigned char key, int x, int y){
 	
 	case 'a':
 	case 'A':
-	//skace levo, l_jumped se resetuje na pocetku svakog skoka
+	//skace levo, jumped se resetuje na pocetku svakog skoka
 		if(jump_ongoing==0){
 			direction=LEFT;
-			l_jumped=0;
+			jumped=0;
 			jump_ongoing=1;
 			glutTimerFunc(TIMER_INTERVAL, on_timer, 0);
 		}
     break;
 	
-	case 'd':
-	case 'D':
-	//skace desno, r_jumped se resetuje na pocetku svakog skoka
+	case 'g':
+	case 'G':
+	//skace desno, jumped se resetuje na pocetku svakog skoka
 		if(jump_ongoing==0){
 			direction=RIGHT;
-			r_jumped=0;
+			jumped=0;
 			jump_ongoing=1;
 			glutTimerFunc(TIMER_INTERVAL, on_timer, 0);
 		}
     break;
 	
-	case 's':
-	case 'S':
-	//skace nazad, b_jumped se resetuje na pocetku svakog skoka
+	case 'B':
+	case 'b':
+	//skace nazad, jumped se resetuje na pocetku svakog skoka
 		if(jump_ongoing==0){
 			direction=BACK;
-			b_jumped=0;
+			jumped=0;
+			jump_ongoing=1;
+			glutTimerFunc(TIMER_INTERVAL, on_timer, 0);
+		}
+    break;
+	
+	case 'f':
+	case 'F':
+	//skace dijagonalno desno, jumped se resetuje na pocetku svakog skoka
+		if(jump_ongoing==0){
+			direction=DIAG_RIGHT;
+			jumped=0;
+			jump_ongoing=1;
+			glutTimerFunc(TIMER_INTERVAL, on_timer, 0);
+		}
+    break;
+
+	
+	case 'S':
+	case 's':
+	//skace desno, jumped se resetuje na pocetku svakog skoka
+		if(jump_ongoing==0){
+			direction=DIAG_LEFT;
+			jumped=0;
 			jump_ongoing=1;
 			glutTimerFunc(TIMER_INTERVAL, on_timer, 0);
 		}
@@ -370,7 +397,7 @@ static void on_timer(int value)
 	switch(direction){
 		case FORWARD:
 			//skacemo po 0.2 odjednom, da ne bi seckala animacija
-			z_jumped+=.2;
+			jumped+=.2;
 			z+=.2;
 			
 			/*
@@ -379,16 +406,16 @@ static void on_timer(int value)
 			* 	a z3=JUMP_LEN y(z3)=JUMP_HEIGHT tj globalni maksimum 
 			* 	onda je a=-4*JUMP_HEIGHT/(JUMP_LEN*JUMP_LEN)
 			* 	b=4*JUMP_HEIGHT/JUMP_LEN
-			*	a z je z_jumped jer se pri svakom skoku z_jumped resetuje na nulu dok z nastavlja da se povecava
+			*	a z je jumped jer se pri svakom skoku jumped resetuje na nulu dok z nastavlja da se povecava
 			
 			*/
-			y=(-4*JUMP_HEIGHT*z_jumped*z_jumped)/(JUMP_LEN*JUMP_LEN)+4*JUMP_HEIGHT*z_jumped/JUMP_LEN;
+			y=(-4*JUMP_HEIGHT*jumped*jumped)/(JUMP_LEN*JUMP_LEN)+4*JUMP_HEIGHT*jumped/JUMP_LEN;
 			
 			//ponovo se iscrtava prozor	
 			glutPostRedisplay();
 
 			//ako je presao dovoljno prestaje da skace
-			if(z_jumped<JUMP_LEN){
+			if(jumped<JUMP_LEN){
 				glutTimerFunc(TIMER_INTERVAL, on_timer, TIMER_ID);
 			}
 			else{
@@ -397,17 +424,17 @@ static void on_timer(int value)
 			break;
 		case LEFT:
 			//skacemo po 0.2 odjednom, da ne bi seckala animacija
-			l_jumped+=.2;
+			jumped+=.2;
 			x+=.2;
 			
 			//formula kao gore
-			y=(-4*JUMP_HEIGHT*l_jumped*l_jumped)/(JUMP_LEN*JUMP_LEN)+4*JUMP_HEIGHT*l_jumped/JUMP_LEN;
+			y=(-4*JUMP_HEIGHT*jumped*jumped)/(JUMP_LEN*JUMP_LEN)+4*JUMP_HEIGHT*jumped/JUMP_LEN;
 			
 			//ponovo se iscrtava prozor	
 			glutPostRedisplay();
 
 			//ako je presao dovoljno prestaje da skace
-			if(l_jumped<JUMP_LEN){
+			if(jumped<JUMP_LEN){
 				glutTimerFunc(TIMER_INTERVAL, on_timer, TIMER_ID);
 			}			
 			else{
@@ -417,17 +444,17 @@ static void on_timer(int value)
 			break;
 		case RIGHT:
 			//skacemo po 0.2 odjednom, da ne bi seckala animacija
-			r_jumped+=.2;
+			jumped+=.2;
 			x-=.2;
 			
 			//formula kao gore
-			y=(-4*JUMP_HEIGHT*r_jumped*r_jumped)/(JUMP_LEN*JUMP_LEN)+4*JUMP_HEIGHT*r_jumped/JUMP_LEN;
+			y=(-4*JUMP_HEIGHT*jumped*jumped)/(JUMP_LEN*JUMP_LEN)+4*JUMP_HEIGHT*jumped/JUMP_LEN;
 			
 			//ponovo se iscrtava prozor	
 			glutPostRedisplay();
 
 			//ako je presao dovoljno prestaje da skace
-			if(r_jumped<JUMP_LEN){
+			if(jumped<JUMP_LEN){
 				glutTimerFunc(TIMER_INTERVAL, on_timer, TIMER_ID);
 			}			
 			else{
@@ -436,19 +463,60 @@ static void on_timer(int value)
 
 			break;
 
-		case BACK:
-			//skacemo po 0.1 odjednom, da ne bi seckala animacija
-			b_jumped+=.1;
-			z-=0.1;
-			
-			
-			y=(-4*JUMP_HEIGHT*b_jumped*b_jumped)/(JUMP_LEN*JUMP_LEN)+4*JUMP_HEIGHT*b_jumped/JUMP_LEN;
+		case DIAG_LEFT:
+			//skacemo po 0.2 odjednom, da ne bi seckala animacija
+			jumped+=.2;
+			x+=.2;
+			z+=.2;
+			//formula kao gore
+			y=(-4*JUMP_HEIGHT*jumped*jumped)/(JUMP_LEN*JUMP_LEN)+4*JUMP_HEIGHT*jumped/JUMP_LEN;
 			
 			//ponovo se iscrtava prozor	
 			glutPostRedisplay();
 
 			//ako je presao dovoljno prestaje da skace
-			if(b_jumped<JUMP_LEN){
+			if(jumped<JUMP_LEN){
+				glutTimerFunc(TIMER_INTERVAL, on_timer, TIMER_ID);
+			}			
+			else{
+				jump_ongoing=0;
+			}
+
+			break;
+		case DIAG_RIGHT:
+			//skacemo po 0.2 odjednom, da ne bi seckala animacija
+			jumped+=.2;
+			x-=.2;
+			z+=.2;
+			
+			//formula kao gore
+			y=(-4*JUMP_HEIGHT*jumped*jumped)/(JUMP_LEN*JUMP_LEN)+4*JUMP_HEIGHT*jumped/JUMP_LEN;
+			
+			//ponovo se iscrtava prozor	
+			glutPostRedisplay();
+
+			//ako je presao dovoljno prestaje da skace
+			if(jumped<JUMP_LEN){
+				glutTimerFunc(TIMER_INTERVAL, on_timer, TIMER_ID);
+			}			
+			else{
+				jump_ongoing=0;
+			}
+
+			break;
+		case BACK:
+			//skacemo po 0.1 odjednom, da ne bi seckala animacija
+			jumped+=.1;
+			z-=0.1;
+			
+			
+			y=(-4*JUMP_HEIGHT*jumped*jumped)/(JUMP_LEN*JUMP_LEN)+4*JUMP_HEIGHT*jumped/JUMP_LEN;
+			
+			//ponovo se iscrtava prozor	
+			glutPostRedisplay();
+
+			//ako je presao dovoljno prestaje da skace
+			if(jumped<JUMP_LEN){
 				glutTimerFunc(TIMER_INTERVAL, on_timer, TIMER_ID);
 			}
 			else{
