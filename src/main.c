@@ -318,8 +318,7 @@ static void on_keyboard(unsigned char key, int x, int y){
 		exit(EXIT_SUCCESS);
 		break;
 		
-	case 'd':
-	case 'D':
+	case '5':
 	//skace napred, jumped se resetuje na pocetku svakog skoka
 		if(jump_ongoing==0){
 			direction=FORWARD;
@@ -329,8 +328,7 @@ static void on_keyboard(unsigned char key, int x, int y){
 		}
     break;
 	
-	case 'a':
-	case 'A':
+	case '7':
 	//skace levo, jumped se resetuje na pocetku svakog skoka
 		if(jump_ongoing==0){
 			direction=LEFT;
@@ -340,8 +338,7 @@ static void on_keyboard(unsigned char key, int x, int y){
 		}
     break;
 	
-	case 'g':
-	case 'G':
+	case '1':
 	//skace desno, jumped se resetuje na pocetku svakog skoka
 		if(jump_ongoing==0){
 			direction=RIGHT;
@@ -351,8 +348,7 @@ static void on_keyboard(unsigned char key, int x, int y){
 		}
     break;
 	
-	case 'B':
-	case 'b':
+	case '4':
 	//skace nazad, jumped se resetuje na pocetku svakog skoka
 		if(jump_ongoing==0){
 			direction=BACK;
@@ -362,8 +358,7 @@ static void on_keyboard(unsigned char key, int x, int y){
 		}
     break;
 	
-	case 'f':
-	case 'F':
+	case'2':
 	//skace dijagonalno desno, jumped se resetuje na pocetku svakog skoka
 		if(jump_ongoing==0){
 			direction=DIAG_RIGHT;
@@ -374,9 +369,8 @@ static void on_keyboard(unsigned char key, int x, int y){
     break;
 
 	
-	case 'S':
-	case 's':
-	//skace desno, jumped se resetuje na pocetku svakog skoka
+	case '8':
+	//skace dijagonalno levo, jumped se resetuje na pocetku svakog skoka
 		if(jump_ongoing==0){
 			direction=DIAG_LEFT;
 			jumped=0;
