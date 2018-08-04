@@ -12,6 +12,8 @@
 #define RIGHT 2
 #define BACK 3
 
+static void draw_path();
+static void generate_path();
 static void draw_islands();
 static void island();
 static void on_reshape(int width, int height);
@@ -23,6 +25,11 @@ static void rock();
 static void on_keyboard(unsigned char key, int x, int y);
 static void on_timer(int value);
 
+
+static int num_of_rocks;
+static int path_x[25];
+static int path_z[25];
+static int new_level;
 static int jump_ongoing;
 static double x;
 static double y;
@@ -52,11 +59,13 @@ int main(int argc, char** argv){
 	glClearColor(0, 0, 0, 0);
     glEnable(GL_DEPTH_TEST);
 	
+	new_level=1;
 	jump_ongoing=0;
 	x=0;
 	y=0;
 	z=0;
 	
+
 	svetlo();
 
 	//glavna petlja
@@ -64,7 +73,7 @@ int main(int argc, char** argv){
 	return 0;
 }
 
-//TODO 
+
 static void on_reshape(int width, int height) {
 	//viewport
 	glViewport(0, 0, width, height);
@@ -270,10 +279,33 @@ static void draw_islands(){
 }
 
 static void generate_path(){
+	//funkcija koja random generise stazu od ostrva do ostrva i upisuje x i y koordinate svakog kamena u niz path_x i path_z i broj kamenja u num_of_rocks
+	time_t t;
+	//broj kamenja
+	num_of_rocks=0;
+	srand((unsigned) time(&t));
+	int rand_pos=-2+rand()%5;
+	path_x[0]=rand_pos*5;
+	path_z[0]=-10;
+	num_of_rocks++;
 	
 	
+	
+	new_level=0;
+	draw_path();
 }
+static void draw_path(){
+	//funkcija koja iscrtava vec generisanu stazu pomocu x i z koordinata upisanih u dva niza
+	int i=0;
+	for(i=0; i<num_of_rocks; i++){
+		
+		glPushMatrix();
+			glTranslatef(path_x[i], 0, path_z[i]);
+			rock();   	
+		glPopMatrix();	
 
+	}
+}
 static void on_keyboard(unsigned char key, int x, int y){
 	switch (key) {
 	
@@ -337,9 +369,9 @@ static void on_timer(int value)
         return;
 	switch(direction){
 		case FORWARD:
-			//skacemo po 0.1 odjednom, da ne bi seckala animacija
-			z_jumped+=.1;
-			z+=0.1;
+			//skacemo po 0.2 odjednom, da ne bi seckala animacija
+			z_jumped+=.2;
+			z+=.2;
 			
 			/*
 			* ovo je formula koju sam izvela direktno iz y=a*z*z+b*z+c
@@ -364,9 +396,9 @@ static void on_timer(int value)
 			}
 			break;
 		case LEFT:
-			//skacemo po 0.1 odjednom, da ne bi seckala animacija
-			l_jumped+=.1;
-			x+=.1;
+			//skacemo po 0.2 odjednom, da ne bi seckala animacija
+			l_jumped+=.2;
+			x+=.2;
 			
 			//formula kao gore
 			y=(-4*JUMP_HEIGHT*l_jumped*l_jumped)/(JUMP_LEN*JUMP_LEN)+4*JUMP_HEIGHT*l_jumped/JUMP_LEN;
@@ -384,9 +416,9 @@ static void on_timer(int value)
 
 			break;
 		case RIGHT:
-			//skacemo po 0.1 odjednom, da ne bi seckala animacija
-			r_jumped+=.1;
-			x-=.1;
+			//skacemo po 0.2 odjednom, da ne bi seckala animacija
+			r_jumped+=.2;
+			x-=.2;
 			
 			//formula kao gore
 			y=(-4*JUMP_HEIGHT*r_jumped*r_jumped)/(JUMP_LEN*JUMP_LEN)+4*JUMP_HEIGHT*r_jumped/JUMP_LEN;
@@ -459,10 +491,12 @@ static void on_display(void){
 	//crtamo bezbedna ostrva
 	draw_islands();
 	
-	//crtamo put od ostrva do ostrva
-	generate_path();
-
+	//generisemo putanju
+	if(new_level){
+		generate_path();
+	}
 	
+	draw_path();
 	//nova slika
 	glutSwapBuffers();
 }
