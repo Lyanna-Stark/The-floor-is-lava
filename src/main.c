@@ -276,7 +276,6 @@ static void draw_islands(){
 		island();
 	glPopMatrix();	
 }
-
 static void generate_path(){
 	//funkcija koja random generise stazu od ostrva do ostrva i upisuje x i y koordinate svakog kamena u niz path_x i path_z i broj kamenja u num_of_rocks
 	time_t t;
@@ -290,24 +289,60 @@ static void generate_path(){
 	int rand_pos=-2+rand()%5;
 	path_x[0]=rand_pos*5;
 	path_z[0]=-10;
-	num_of_rocks++;
-	
-	
-	
-	
-	
+	num_of_rocks=1;
+	int next_dir;
+	do{
+		next_dir=rand()%5;
+		switch(next_dir){
+			case LEFT:
+				if(path_x[num_of_rocks-1]!=10){
+					path_x[num_of_rocks]=path_x[num_of_rocks-1]+5;
+					path_z[num_of_rocks]=-10;
+					
+					num_of_rocks++;
+				}
+				break;
+			case RIGHT:
+				if(path_x[num_of_rocks-1]!=-10){
+					path_x[num_of_rocks]=path_x[num_of_rocks-1]-5;
+					path_z[num_of_rocks]=-10;
+					num_of_rocks++;
+				}
+				break;
+			case DIAG_LEFT:
+				if(path_x[num_of_rocks-1]!=10){
+					path_x[num_of_rocks]=path_x[num_of_rocks-1]+5;
+					path_z[num_of_rocks]=-5;
+					num_of_rocks++;
+				}
+				break;
+			case DIAG_RIGHT:
+				if(path_x[num_of_rocks]!=-10){
+					path_x[num_of_rocks]=path_x[num_of_rocks-1]-5;
+					path_z[num_of_rocks]=-5;
+					num_of_rocks++;
+				}
+				break;	
+			case FORWARD:
+				path_x[num_of_rocks]=path_x[num_of_rocks-1];
+				path_z[num_of_rocks]=-5;
+				num_of_rocks++;
+		}
+	}while(next_dir==LEFT || next_dir==RIGHT);
+
+
 	new_level=0;
 }
 static void draw_path(){
 	//funkcija koja iscrtava vec generisanu stazu pomocu x i z koordinata upisanih u dva niza
 	int i=0;
 	for(i=0; i<num_of_rocks; i++){
-		
 		glPushMatrix();
 			glTranslatef(path_x[i], 0, path_z[i]);
 			rock();   	
 		glPopMatrix();	
 
+		printf("%d: %d, %d\n", i, path_x[i], path_z[i]);
 	}
 }
 static void on_keyboard(unsigned char key, int x, int y){
