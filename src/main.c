@@ -191,10 +191,10 @@ static void lava_floor(){
 	glPushMatrix();
 		glBegin(GL_QUADS);
 			glColor3f(.941, .4, 0);			
-			glVertex3f(-200, 0, -100); 
-			glVertex3f(200, 0, -100); 
-			glVertex3f(200, 0, 100); 
-			glVertex3f(-200, 0, 100);
+			glVertex3f(-200, 0, -300); 
+			glVertex3f(200, 0, -300); 
+			glVertex3f(200, 0, 300); 
+			glVertex3f(-200, 0, 300);
 		glEnd();
 	glPopMatrix();
 	
@@ -276,6 +276,68 @@ static void draw_islands(){
 		island();
 	glPopMatrix();	
 }
+
+static void rock_line(int z_coord){
+	int next_dir;
+	int last_z;
+	do{
+		next_dir=rand()%5;
+		switch(next_dir){
+			case LEFT:
+				//ako je ispalo da je naredni kamen levo od prethodnog, z koordinata ostaje ista, nastavljamo dalje da generisemo
+				if(path_x[num_of_rocks-1]<10){
+					path_x[num_of_rocks]=path_x[num_of_rocks-1]+5;
+					path_z[num_of_rocks]=z_coord;
+					last_z=z_coord;
+					num_of_rocks++;
+				}
+				break;
+			case RIGHT:				
+				//ako je ispalo da je naredni kamen desno od prethodnog, z koordinata ostaje ista, nastavljamo dalje da generisemo
+
+				if(path_x[num_of_rocks-1]>-10){
+					path_x[num_of_rocks]=path_x[num_of_rocks-1]-5;
+					path_z[num_of_rocks]=z_coord;
+					last_z=z_coord;
+					num_of_rocks++;
+				}
+				break;
+			case DIAG_LEFT:				
+				//ako je ispalo da je naredni kamen dijagonalno levo od prethodnog, z koordinata se povecava
+
+				if(path_x[num_of_rocks-1]<10){
+					path_x[num_of_rocks]=path_x[num_of_rocks-1]+5;
+					path_z[num_of_rocks]=z_coord+5;
+					last_z=z_coord+5;
+
+					num_of_rocks++;
+				}
+				break;
+			case DIAG_RIGHT:				
+				//ako je ispalo da je naredni kamen dijagonalno desno od prethodnog, z koordinata se povecava
+
+				if(path_x[num_of_rocks-1]>-10){
+					path_x[num_of_rocks]=path_x[num_of_rocks-1]-5;
+					path_z[num_of_rocks]=z_coord+5;
+					last_z=z_coord+5;
+					
+					num_of_rocks++;
+				}
+				break;	
+			case FORWARD:			
+				//ako je ispalo da je naredni kamen ispred prethodnog, z koordinata se povecava
+
+				path_x[num_of_rocks]=path_x[num_of_rocks-1];
+				path_z[num_of_rocks]=z_coord+5;
+				last_z=z_coord+5;
+
+				num_of_rocks++;
+		}
+	}while(last_z!=z_coord+5);
+	//uslov za izlazak iz petlje je da smo presli u naredni red, tj da je generisan kamen koji nije levo ili desno vec dijagonalno ili napred
+	
+	
+}
 static void generate_path(){
 	//funkcija koja random generise stazu od ostrva do ostrva i upisuje x i y koordinate svakog kamena u niz path_x i path_z i broj kamenja u num_of_rocks
 	time_t t;
@@ -290,47 +352,14 @@ static void generate_path(){
 	path_x[0]=rand_pos*5;
 	path_z[0]=-10;
 	num_of_rocks=1;
-	int next_dir;
-	do{
-		next_dir=rand()%5;
-		switch(next_dir){
-			case LEFT:
-				if(path_x[num_of_rocks-1]!=10){
-					path_x[num_of_rocks]=path_x[num_of_rocks-1]+5;
-					path_z[num_of_rocks]=-10;
-					
-					num_of_rocks++;
-				}
-				break;
-			case RIGHT:
-				if(path_x[num_of_rocks-1]!=-10){
-					path_x[num_of_rocks]=path_x[num_of_rocks-1]-5;
-					path_z[num_of_rocks]=-10;
-					num_of_rocks++;
-				}
-				break;
-			case DIAG_LEFT:
-				if(path_x[num_of_rocks-1]!=10){
-					path_x[num_of_rocks]=path_x[num_of_rocks-1]+5;
-					path_z[num_of_rocks]=-5;
-					num_of_rocks++;
-				}
-				break;
-			case DIAG_RIGHT:
-				if(path_x[num_of_rocks]!=-10){
-					path_x[num_of_rocks]=path_x[num_of_rocks-1]-5;
-					path_z[num_of_rocks]=-5;
-					num_of_rocks++;
-				}
-				break;	
-			case FORWARD:
-				path_x[num_of_rocks]=path_x[num_of_rocks-1];
-				path_z[num_of_rocks]=-5;
-				num_of_rocks++;
-		}
-	}while(next_dir==LEFT || next_dir==RIGHT);
-
-
+	
+	//za svaki naredni red kamenja pozivamo funkciju koja generise kamenje u tom redu sve dok ne ,,preskoce" u naredni red tj dok random ne ispadne FORWARD ili DIAG_LEFT ili DIAG_RIGHT
+	rock_line(-10);
+	rock_line(-5);
+	rock_line(0);
+	rock_line(5);
+	
+	//resetujemo new_level promenljivu da ne bi pri svakom pokretanju animacije generisao novu stazu
 	new_level=0;
 }
 static void draw_path(){
@@ -564,7 +593,7 @@ static void on_display(void){
 	glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 	//iz svih uglova
-	gluLookAt(-25, 17, 0, 0, 0, 0, 0, 1, 0);
+	gluLookAt(-30, 17, 0, 0, 0, 0, 0, 1, 0);
 	//front
 	//gluLookAt(0, 0, 10, 0, 0, 0, 0, 1, 0);
 	// profil
