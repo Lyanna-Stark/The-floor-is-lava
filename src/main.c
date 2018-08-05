@@ -32,11 +32,13 @@ static void on_keyboard(unsigned char key, int x, int y);
 static void on_timer(int value);
 static void reset();
 
+static char str[15];
 static int num_of_rocks;
 static int path_x[25];
 static int path_z[25];
 static int new_level;
 static int jump_ongoing;
+static int level;
 static double x;
 static double y;
 static double z;
@@ -61,14 +63,21 @@ int main(int argc, char** argv){
 	
 	glClearColor(0, 0, 0, 0);
     glEnable(GL_DEPTH_TEST);
-	
+	level=0;
 	reset();
 	
-	svetlo();
-
+	svetlo();	
 	//glavna petlja
 	glutMainLoop();
 	return 0;
+}
+
+void level_text(const char* tekst) {
+	//boja teksta
+	glColor3f(1, 1, 1);
+	//pozicija
+	glRasterPos3f(10, 10, 10);
+	glutBitmapString(GLUT_BITMAP_TIMES_ROMAN_24, tekst);
 }
 
 static void reset(){
@@ -77,13 +86,14 @@ static void reset(){
 	jump_ongoing=0;
 	x=0;
 	y=0;
-	z=0;
-	
 
+	z=-15;
+
+	generate_path();
 }
 static int is_safe(){
 	//proverava da li je stigao do drugog ostrva
-	if(z>=15) 
+	if(z>=14) 
 		return 1;
 	else 
 		return 0;
@@ -100,6 +110,7 @@ static int is_dead(){
 		if(path_x[i]==x && path_z[i]==z)
 			return 1;
 	}
+	printf("dead");
 	return 0;
 }
 
@@ -239,8 +250,6 @@ static void lava_floor(){
 	glPopMatrix();
 	
 }
-
-
 static void island(){
 	
 	//funkcija koja crta ostrvo, slicna onoj za kamen, crta prvo bazu
@@ -451,17 +460,6 @@ static void on_keyboard(unsigned char key, int x, int y){
 			glutTimerFunc(TIMER_INTERVAL, on_timer, 0);
 		}
     break;
-	
-	case '4':
-	//skace nazad, jumped se resetuje na pocetku svakog skoka
-		if(jump_ongoing==0){
-			direction=BACK;
-			jumped=0;
-			jump_ongoing=1;
-			glutTimerFunc(TIMER_INTERVAL, on_timer, 0);
-		}
-    break;
-	
 	case'2':
 	//skace dijagonalno desno, jumped se resetuje na pocetku svakog skoka
 		if(jump_ongoing==0){
@@ -602,25 +600,6 @@ static void on_timer(int value)
 			}
 
 			break;
-		case BACK:
-			//skacemo po 0.1 odjednom, da ne bi seckala animacija
-			jumped+=.1;
-			z-=0.1;
-			
-			
-			y=(-4*JUMP_HEIGHT*jumped*jumped)/(JUMP_LEN*JUMP_LEN)+4*JUMP_HEIGHT*jumped/JUMP_LEN;
-			
-			//ponovo se iscrtava prozor	
-			glutPostRedisplay();
-
-			//ako je presao dovoljno prestaje da skace
-			if(jumped<JUMP_LEN){
-				glutTimerFunc(TIMER_INTERVAL, on_timer, TIMER_ID);
-			}
-			else{
-				jump_ongoing=0;
-			}
-			break;
 	}
 
 }
@@ -644,25 +623,39 @@ static void on_display(void){
 
 	//crtamo pod	
 	glPushMatrix();
-		glTranslatef(-10, 0,0);
+		//glTranslatef(-10, 0,0);
 		lava_floor();   	
 	glPopMatrix();	
 	
-	//crtamo coveka
-    glPushMatrix();
-		glTranslatef(x, y+3, z-15);
-		lego_man();
-	glPopMatrix();	
 	
 	//crtamo bezbedna ostrva
 	draw_islands();
 	
-	//generisemo putanju
-	if(new_level){
-		generate_path();
-	}
 	
+	//generisemo putanju
+	//if(new_level){
+	//	generate_path();
+	///}
+	
+	//crtamo coveka
+    glPushMatrix();
+ 		glTranslatef(x, y+3, z-level*.75);
+		lego_man();
+	glPopMatrix();	
+	
+	
+
 	draw_path();
+
+	//vracamo coveka nazad i generisemo novu putanju ako je dosao do bezbednog ostrva
+	if(is_safe()){
+		reset();
+		level++;
+	}    
+	//ispisujemo nivo
+	sprintf(str, "level: %d", level);
+	level_text(str);
+
 	//nova slika
 	glutSwapBuffers();
 }
