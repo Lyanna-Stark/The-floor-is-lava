@@ -14,6 +14,8 @@
 #define DIAG_RIGHT 4
 #define BACK 5
 
+static int is_safe();
+static int is_dead();
 static int check_existing_rock(int x, int z, int num_of_rocks);
 static void rock_line(int z_coord);
 static void draw_path();
@@ -28,7 +30,7 @@ static void lava_floor();
 static void rock();
 static void on_keyboard(unsigned char key, int x, int y);
 static void on_timer(int value);
-
+static void reset();
 
 static int num_of_rocks;
 static int path_x[25];
@@ -60,6 +62,17 @@ int main(int argc, char** argv){
 	glClearColor(0, 0, 0, 0);
     glEnable(GL_DEPTH_TEST);
 	
+	reset();
+	
+	svetlo();
+
+	//glavna petlja
+	glutMainLoop();
+	return 0;
+}
+
+static void reset(){
+	//inicijalizujemo promenljive
 	new_level=1;
 	jump_ongoing=0;
 	x=0;
@@ -67,14 +80,32 @@ int main(int argc, char** argv){
 	z=0;
 	
 
-	svetlo();
+}
+static int is_safe(){
+	//proverava da li je stigao do drugog ostrva
+	if(z>=15) 
+		return 1;
+	else 
+		return 0;
+}
 
-	//glavna petlja
-	glutMainLoop();
+static int is_dead(){
+	//ako je z koordinata manja od -10, znaci da je jos uvek na prvom ostrvu i nije mrtav
+	if(z<-10) 
+		return 1;
+	
+	int i;
+	//prolazi kroz niz koordinata kamenja i proverava da li se covek nalazi na kamenu ili je upao u lavu
+	for(i=0; i<num_of_rocks; i++){
+		if(path_x[i]==x && path_z[i]==z)
+			return 1;
+	}
 	return 0;
 }
+
 static int check_existing_rock(int x, int z, int num_of_rocks){
 	int i;
+	//proverava da li je kamen koji zelimo da generisemo vec generisan
 	for(i=0; i<num_of_rocks; i++){
 		if(path_x[i]==x && path_z[i]==z)
 			return 1;
@@ -200,10 +231,10 @@ static void lava_floor(){
 	glPushMatrix();
 		glBegin(GL_QUADS);
 			glColor3f(.941, .4, 0);			
-			glVertex3f(-200, 0, -300); 
-			glVertex3f(200, 0, -300); 
-			glVertex3f(200, 0, 300); 
-			glVertex3f(-200, 0, 300);
+			glVertex3f(-400, 0, -400); 
+			glVertex3f(400, 0, -400); 
+			glVertex3f(400, 0, 400); 
+			glVertex3f(-400, 0, 400);
 		glEnd();
 	glPopMatrix();
 	
@@ -295,9 +326,7 @@ static void rock_line(int z_coord){
 			case LEFT:
 				//ako je ispalo da je naredni kamen levo od prethodnog, z koordinata ostaje ista, nastavljamo dalje da generisemo
 				if(path_x[num_of_rocks-1]<10 && !check_existing_rock(path_x[num_of_rocks-1]+5, z_coord, num_of_rocks+1)){
-					
-					
-					path_x[num_of_rocks]=path_x[num_of_rocks-1]+5;
+						path_x[num_of_rocks]=path_x[num_of_rocks-1]+5;
 					path_z[num_of_rocks]=z_coord;
 					last_z=z_coord;
 					num_of_rocks++;
@@ -604,7 +633,7 @@ static void on_display(void){
 	glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 	//iz svih uglova
-	gluLookAt(-30, 17, 0, 0, 0, 0, 0, 1, 0);
+	gluLookAt(-30+x, 17, 0, 0, 0, 0, 0, 1, 0);
 	//front
 	//gluLookAt(0, 0, 10, 0, 0, 0, 0, 1, 0);
 	// profil
