@@ -448,7 +448,7 @@ static void on_keyboard(unsigned char key, int x, int y){
 		exit(EXIT_SUCCESS);
 		break;
 		
-	case '5':
+	case 6':
 	//skace napred, jumped se resetuje na pocetku svakog skoka
 		if(jump_ongoing==0){
 			direction=FORWARD;
@@ -458,7 +458,7 @@ static void on_keyboard(unsigned char key, int x, int y){
 		}
     break;
 	
-	case '7':
+	case '8':
 	//skace levo, jumped se resetuje na pocetku svakog skoka
 		if(jump_ongoing==0){
 			direction=LEFT;
@@ -468,7 +468,7 @@ static void on_keyboard(unsigned char key, int x, int y){
 		}
     break;
 	
-	case '1':
+	case '2':
 	//skace desno, jumped se resetuje na pocetku svakog skoka
 		if(jump_ongoing==0){
 			direction=RIGHT;
@@ -477,7 +477,7 @@ static void on_keyboard(unsigned char key, int x, int y){
 			glutTimerFunc(TIMER_INTERVAL, on_timer, 0);
 		}
     break;
-	case'2':
+	case'3':
 	//skace dijagonalno desno, jumped se resetuje na pocetku svakog skoka
 		if(jump_ongoing==0){
 			direction=DIAG_RIGHT;
@@ -488,7 +488,7 @@ static void on_keyboard(unsigned char key, int x, int y){
     break;
 
 	
-	case '8':
+	case '9':
 	//skace dijagonalno levo, jumped se resetuje na pocetku svakog skoka
 		if(jump_ongoing==0){
 			direction=DIAG_LEFT;
@@ -668,7 +668,6 @@ static void on_display(void){
 
 	//crtamo pod	
 	glPushMatrix();
-		//glTranslatef(-10, 0,0);
 		lava_floor(lava_texture);   	
 	glPopMatrix();	
 	
