@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <GL/glut.h>
 #include <time.h>
+#include "image.h"
 
 #define TIMER_ID 0
 #define TIMER_INTERVAL 20
@@ -14,6 +15,9 @@
 #define DIAG_RIGHT 4
 #define BACK 5
 
+#define LAVATEXTURE "lava.bmp"
+
+static GLuint lava_texture;
 static int is_safe();
 static int is_dead();
 static int check_existing_rock(int x, int z, int num_of_rocks);
@@ -31,6 +35,7 @@ static void rock();
 static void on_keyboard(unsigned char key, int x, int y);
 static void on_timer(int value);
 static void reset();
+static void initializeTexture(void);
 
 static char str[15];
 static int num_of_rocks;
@@ -60,6 +65,7 @@ int main(int argc, char** argv){
 	glutDisplayFunc(on_display);
 	glutReshapeFunc(on_reshape);
 	glutKeyboardFunc(on_keyboard);
+	initializeTexture();
 	
 	glClearColor(0, 0, 0, 0);
     glEnable(GL_DEPTH_TEST);
@@ -233,7 +239,10 @@ void lego_man(){
 		
 }
 
-static void lava_floor(){
+static void lava_floor(GLuint lava_texture){
+	
+	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+	glBindTexture(GL_TEXTURE_2D, lava_texture);
 	
 	//glColorMaterial(GL_FRONT, GL_DIFFUSE);
 	//glEnable(GL_COLOR_MATERIAL);
@@ -241,14 +250,22 @@ static void lava_floor(){
 	//funkcija koja crta pod od lave
 	glPushMatrix();
 		glBegin(GL_QUADS);
-			glColor3f(.941, .4, 0);			
+			 glNormal3f(0, 1, 0);
+			glColor3f(.941, .4, 0);		
+			glTexCoord2f(0, 0);	
 			glVertex3f(-400, 0, -400); 
+			glTexCoord2f(10, 0);
 			glVertex3f(400, 0, -400); 
+			glTexCoord2f(10, 0);
 			glVertex3f(400, 0, 400); 
+			glTexCoord2f(0, 0);
 			glVertex3f(-400, 0, 400);
 		glEnd();
 	glPopMatrix();
 	
+    glBindTexture(GL_TEXTURE_2D, 0);
+    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+
 }
 static void island(){
 	
@@ -483,7 +500,35 @@ static void on_keyboard(unsigned char key, int x, int y){
 
   }
 }
+static void initializeTexture(void)
+{
+   /* Inicijalizuje se objekat koji ce sadrzati teksture ucitane iz fajla */
+    Image *image = image_init(0, 0);
 
+    /* Podesava se rezim iscrtavanja tekstura tako da boje na teksturi potpuno odredjuju boju objekata */
+    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+
+    /* Kreira se tekstura */
+    image_read(image, LAVATEXTURE);
+
+    /* Generisu se identifikatori teksture i inicijalizuje tekstura*/
+    glGenTextures(1, &lava_texture);
+
+    glBindTexture(GL_TEXTURE_2D, lava_texture);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB,
+                 image->width, image->height, 0,
+                 GL_RGB, GL_UNSIGNED_BYTE, image->pixels);
+
+    /* Iskljucujemo aktivnu teksturu */
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    /* Unistava se objekat za citanje tekstura iz fajla. */
+    image_done(image);
+}
 
 static void on_timer(int value)
 {
@@ -612,7 +657,7 @@ static void on_display(void){
 	glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 	//iz svih uglova
-	gluLookAt(-30+x, 17, 0, 0, 0, 0, 0, 1, 0);
+	gluLookAt(-30+x/3, 17, 0, 0, 0, 0, 0, 1, 0);
 	//front
 	//gluLookAt(0, 0, 10, 0, 0, 0, 0, 1, 0);
 	// profil
@@ -624,7 +669,7 @@ static void on_display(void){
 	//crtamo pod	
 	glPushMatrix();
 		//glTranslatef(-10, 0,0);
-		lava_floor();   	
+		lava_floor(lava_texture);   	
 	glPopMatrix();	
 	
 	
