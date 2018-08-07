@@ -108,17 +108,18 @@ static void reset(){
 	z=-15;
 	printf("%lf, %lf, %lf\n", x, y, z);
 	generate_path();
+	glutPostRedisplay();
 }
 static int is_safe(){
 	//proverava da li je stigao do drugog ostrva
-	if(z>=14) 
+	if(abs(z-15)<0.1) 
 		return 1;
 	else 
 		return 0;
 }
 
 static int is_dead(){
-	if(!left_island)
+	if(!left_island || is_safe())
 		return 0;
 	int i;
 	//prolazi kroz niz koordinata kamenja i proverava da li se covek nalazi na kamenu ili je upao u lavu
@@ -450,6 +451,36 @@ static void draw_path(){
 		//printf("%d: %d, %d\n", i, path_x[i], path_z[i]);
 	}
 }
+static void initializeTexture(void)
+{
+	//kod sa casa
+	    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+
+	/* Inicijalizuje se objekat koji ce sadrzati teksture ucitane iz fajla */
+    Image *image = image_init(0, 0);
+
+
+    /* Kreira se tekstura */
+    image_read(image, LAVATEXTURE);
+
+    /* Generisu se identifikatori teksture i inicijalizuje tekstura*/
+    glGenTextures(1, &lava_texture);
+
+    glBindTexture(GL_TEXTURE_2D, lava_texture);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB,
+                 image->width, image->height, 0,
+                 GL_RGB, GL_UNSIGNED_BYTE, image->pixels);
+
+    /* Iskljucujemo aktivnu teksturu */
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    /* Unistava se objekat za citanje tekstura iz fajla. */
+    image_done(image);
+}
 static void on_keyboard(unsigned char key, int x1, int y1){
 	
 	switch (key) {
@@ -520,36 +551,6 @@ static void on_keyboard(unsigned char key, int x1, int y1){
     break;
   }
 }
-static void initializeTexture(void)
-{
-	//kod sa casa
-	    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
-
-	/* Inicijalizuje se objekat koji ce sadrzati teksture ucitane iz fajla */
-    Image *image = image_init(0, 0);
-
-
-    /* Kreira se tekstura */
-    image_read(image, LAVATEXTURE);
-
-    /* Generisu se identifikatori teksture i inicijalizuje tekstura*/
-    glGenTextures(1, &lava_texture);
-
-    glBindTexture(GL_TEXTURE_2D, lava_texture);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB,
-                 image->width, image->height, 0,
-                 GL_RGB, GL_UNSIGNED_BYTE, image->pixels);
-
-    /* Iskljucujemo aktivnu teksturu */
-    glBindTexture(GL_TEXTURE_2D, 0);
-
-    /* Unistava se objekat za citanje tekstura iz fajla. */
-    image_done(image);
-}
 
 static void on_timer(int value)
 {
@@ -584,7 +585,14 @@ static void on_timer(int value)
 			}
 			else{
 				jump_ongoing=0;
-
+				//vracamo coveka nazad i generisemo novu putanju ako je dosao do bezbednog ostrva
+				if(is_safe()){
+					level++;
+					z_fix++;
+					
+					reset();
+				}    
+	
 				if(is_dead()){
 					reset();
 					level=0;
@@ -609,7 +617,14 @@ static void on_timer(int value)
 				glutTimerFunc(TIMER_INTERVAL, on_timer, TIMER_ID);
 			}			
 			else{
-				jump_ongoing=0;				
+				jump_ongoing=0;		//vracamo coveka nazad i generisemo novu putanju ako je dosao do bezbednog ostrva
+				if(is_safe()){
+					level++;
+					z_fix++;
+					
+					reset();
+				}    
+				
 				if(is_dead()){
 					reset();
 					level=0;
@@ -635,7 +650,14 @@ static void on_timer(int value)
 				glutTimerFunc(TIMER_INTERVAL, on_timer, TIMER_ID);
 			}			
 			else{
-				jump_ongoing=0;				
+				jump_ongoing=0;			//vracamo coveka nazad i generisemo novu putanju ako je dosao do bezbednog ostrva
+				if(is_safe()){
+					level++;
+					z_fix++;
+					
+					reset();
+				}    
+			
 				if(is_dead()){
 					reset();
 					level=0;
@@ -663,7 +685,14 @@ static void on_timer(int value)
 				glutTimerFunc(TIMER_INTERVAL, on_timer, TIMER_ID);
 			}			
 			else{
-				jump_ongoing=0;				
+				jump_ongoing=0;				//vracamo coveka nazad i generisemo novu putanju ako je dosao do bezbednog ostrva
+				if(is_safe()){
+					level++;
+					z_fix++;
+					
+					reset();
+				}    
+		
 				if(is_dead()){
 					reset();
 					level=0;
@@ -691,7 +720,14 @@ static void on_timer(int value)
 				glutTimerFunc(TIMER_INTERVAL, on_timer, TIMER_ID);
 			}			
 			else{
-				jump_ongoing=0;				
+				jump_ongoing=0;					//vracamo coveka nazad i generisemo novu putanju ako je dosao do bezbednog ostrva
+				if(is_safe()){
+					level++;
+					z_fix++;
+					
+					reset();
+				}    
+				
 				if(is_dead()){
 					reset();
 					level=0;
@@ -718,7 +754,14 @@ static void on_timer(int value)
 				glutTimerFunc(TIMER_INTERVAL, on_timer, TIMER_ID);
 			}			
 			else{
-				jump_ongoing=0;				
+				jump_ongoing=0;					//vracamo coveka nazad i generisemo novu putanju ako je dosao do bezbednog ostrva
+				if(is_safe()){
+					level++;
+					z_fix++;
+					
+					reset();
+				}    
+	
 				if(is_dead()){
 					reset();
 					level=0;
@@ -771,20 +814,13 @@ static void on_display(void){
 	//crtamo coveka
     glPushMatrix();
  		//glTranslatef(x, y+3, z);
- 		glTranslatef(x, y+3, z-(double)z_fix*.75);
+ 		glTranslatef(x, y+3, z);
 		lego_man();
 	glPopMatrix();	
 	
 	
 
-	//vracamo coveka nazad i generisemo novu putanju ako je dosao do bezbednog ostrva
-	if(is_safe()){
-		level++;
-		z_fix++;
-		
-		reset();
-	}    
-	
+
 	//ispisujemo nivo
 	sprintf(str, "level: %d", level);
 	level_text(str);
