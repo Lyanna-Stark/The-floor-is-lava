@@ -67,14 +67,21 @@ int main(int argc, char** argv){
 	glutDisplayFunc(on_display);
 	glutReshapeFunc(on_reshape);
 	glutKeyboardFunc(on_keyboard);
-	initializeTexture();
+	
+	
+	
+	svetlo();	
 	
 	glClearColor(0, 0, 0, 0);
-    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_DEPTH_TEST);    
+	glEnable(GL_NORMALIZE);
+	glEnable(GL_TEXTURE_2D);
+
+	initializeTexture();
+
 	level=0;
 	reset();
 	
-	svetlo();	
 	//glavna petlja
 	glutMainLoop();
 	return 0;
@@ -143,12 +150,12 @@ static void on_reshape(int width, int height) {
 
 static void svetlo(){
 	
-	glEnable(GL_NORMALIZE);
+	//glEnable(GL_NORMALIZE);
 
 	//namesta se difuzno svetlo
     float diffuse_light[] = {1, 1, 1, 1};    
 	glLightfv(GL_LIGHT0, GL_DIFFUSE, diffuse_light);
-	//glColorMaterial(GL_FRONT, GL_DIFFUSE);
+	glColorMaterial(GL_FRONT, GL_DIFFUSE);
 
     glEnable(GL_LIGHTING);
     glEnable(GL_LIGHT0);
@@ -252,7 +259,7 @@ static void lava_floor(GLuint lava_texture){
 	glPushMatrix();
 		glBegin(GL_QUADS);
 			 glNormal3f(0, 1, 0);
-			glColor3f(.941, .4, 0);		
+			//glColor3f(.941, .4, 0);		
 			glTexCoord2f(0, 0);	
 			glVertex3f(-400, 0, -400); 
 			glTexCoord2f(10, 0);
@@ -262,10 +269,10 @@ static void lava_floor(GLuint lava_texture){
 			glTexCoord2f(0, 0);
 			glVertex3f(-400, 0, 400);
 		glEnd();
-	glPopMatrix();
 	
-    glBindTexture(GL_TEXTURE_2D, 0);
-    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+		glBindTexture(GL_TEXTURE_2D, 0);
+		glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+	glPopMatrix();
 
 }
 static void island(){
@@ -513,11 +520,12 @@ static void on_keyboard(unsigned char key, int x1, int y1){
 }
 static void initializeTexture(void)
 {
-   /* Inicijalizuje se objekat koji ce sadrzati teksture ucitane iz fajla */
+	//kod sa casa
+	    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+
+	/* Inicijalizuje se objekat koji ce sadrzati teksture ucitane iz fajla */
     Image *image = image_init(0, 0);
 
-    /* Podesava se rezim iscrtavanja tekstura tako da boje na teksturi potpuno odredjuju boju objekata */
-    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 
     /* Kreira se tekstura */
     image_read(image, LAVATEXTURE);
