@@ -37,6 +37,7 @@ static void on_timer(int value);
 static void reset();
 static void initializeTexture(void);
 
+static double z_fix;
 static char str[15];
 static int num_of_rocks;
 static int path_x[25];
@@ -44,6 +45,7 @@ static int path_z[25];
 static int new_level;
 static int jump_ongoing;
 static int level;
+static int left_island;
 static double x;
 static double y;
 static double z;
@@ -90,11 +92,12 @@ static void reset(){
 	//inicijalizujemo promenljive
 	new_level=1;
 	jump_ongoing=0;
+	left_island=0;
 	x=0;
 	y=0;
 
 	z=-15;
-
+	printf("%lf, %lf, %lf\n", x, y, z);
 	generate_path();
 }
 static int is_safe(){
@@ -106,18 +109,16 @@ static int is_safe(){
 }
 
 static int is_dead(){
-	//ako je z koordinata manja od -10, znaci da je jos uvek na prvom ostrvu i nije mrtav
-	if(z<-10) 
-		return 1;
-	
+	if(!left_island)
+		return 0;
 	int i;
 	//prolazi kroz niz koordinata kamenja i proverava da li se covek nalazi na kamenu ili je upao u lavu
 	for(i=0; i<num_of_rocks; i++){
-		if(path_x[i]==x && path_z[i]==z)
-			return 1;
+		if((path_x[i]<x+1 && path_x[i]>x-1) && (path_z[i]<z+1 && path_z[i]>z-1))
+			return 0;
 	}
 	printf("dead");
-	return 0;
+	return 1;
 }
 
 static int check_existing_rock(int x, int z, int num_of_rocks){
@@ -437,10 +438,11 @@ static void draw_path(){
 			rock();   	
 		glPopMatrix();	
 
-		printf("%d: %d, %d\n", i, path_x[i], path_z[i]);
+		//printf("%d: %d, %d\n", i, path_x[i], path_z[i]);
 	}
 }
-static void on_keyboard(unsigned char key, int x, int y){
+static void on_keyboard(unsigned char key, int x1, int y1){
+	
 	switch (key) {
 	
 	//ako je pritisnut esc izlazimo iz programa
@@ -448,7 +450,7 @@ static void on_keyboard(unsigned char key, int x, int y){
 		exit(EXIT_SUCCESS);
 		break;
 		
-	case 6':
+	case '6':
 	//skace napred, jumped se resetuje na pocetku svakog skoka
 		if(jump_ongoing==0){
 			direction=FORWARD;
@@ -498,6 +500,15 @@ static void on_keyboard(unsigned char key, int x, int y){
 		}
     break;
 
+	case '4':
+	//skace nazad, jumped se resetuje na pocetku svakog skoka
+		if(jump_ongoing==0){
+			direction=BACK;
+			jumped=0;
+			jump_ongoing=1;
+			glutTimerFunc(TIMER_INTERVAL, on_timer, 0);
+		}
+    break;
   }
 }
 static void initializeTexture(void)
@@ -537,33 +548,43 @@ static void on_timer(int value)
         return;
 	switch(direction){
 		case FORWARD:
-			//skacemo po 0.2 odjednom, da ne bi seckala animacija
-			jumped+=.2;
-			z+=.2;
-			
-			/*
-			* ovo je formula koju sam izvela direktno iz y=a*z*z+b*z+c
-			* ako su z1=0 i z2=MAX_LEN i y(z1)=y(z2)=0
-			* 	a z3=JUMP_LEN y(z3)=JUMP_HEIGHT tj globalni maksimum 
-			* 	onda je a=-4*JUMP_HEIGHT/(JUMP_LEN*JUMP_LEN)
-			* 	b=4*JUMP_HEIGHT/JUMP_LEN
-			*	a z je jumped jer se pri svakom skoku jumped resetuje na nulu dok z nastavlja da se povecava
-			
-			*/
-			y=(-4*JUMP_HEIGHT*jumped*jumped)/(JUMP_LEN*JUMP_LEN)+4*JUMP_HEIGHT*jumped/JUMP_LEN;
-			
-			//ponovo se iscrtava prozor	
-			glutPostRedisplay();
-
+			left_island=1;
 			//ako je presao dovoljno prestaje da skace
 			if(jumped<JUMP_LEN){
+				//skacemo po 0.2 odjednom, da ne bi seckala animacija
+				jumped+=.2;
+				z+=.2;
+				
+				/*
+				* ovo je formula koju sam izvela direktno iz y=a*z*z+b*z+c
+				* ako su z1=0 i z2=MAX_LEN i y(z1)=y(z2)=0
+				* 	a z3=JUMP_LEN y(z3)=JUMP_HEIGHT tj globalni maksimum 
+				* 	onda je a=-4*JUMP_HEIGHT/(JUMP_LEN*JUMP_LEN)
+				* 	b=4*JUMP_HEIGHT/JUMP_LEN
+				*	a z je jumped jer se pri svakom skoku jumped resetuje na nulu dok z nastavlja da se povecava
+				
+				*/
+				y=(-4*JUMP_HEIGHT*jumped*jumped)/(JUMP_LEN*JUMP_LEN)+4*JUMP_HEIGHT*jumped/JUMP_LEN;
+				
+				//ponovo se iscrtava prozor	
+				glutPostRedisplay();
+
+				
 				glutTimerFunc(TIMER_INTERVAL, on_timer, TIMER_ID);
 			}
 			else{
 				jump_ongoing=0;
+				
+				if(is_dead()){
+					reset();
+					level=0;
+					z_fix++;
+				}    
 			}
 			break;
 		case LEFT:
+			
+			if(jumped<JUMP_LEN){
 			//skacemo po 0.2 odjednom, da ne bi seckala animacija
 			jumped+=.2;
 			x+=.2;
@@ -575,15 +596,21 @@ static void on_timer(int value)
 			glutPostRedisplay();
 
 			//ako je presao dovoljno prestaje da skace
-			if(jumped<JUMP_LEN){
 				glutTimerFunc(TIMER_INTERVAL, on_timer, TIMER_ID);
 			}			
 			else{
-				jump_ongoing=0;
+				jump_ongoing=0;				
+				if(is_dead()){
+					reset();
+					level=0;
+					z_fix++;
+				}    
+
 			}
 
 			break;
 		case RIGHT:
+			if(jumped<JUMP_LEN){
 			//skacemo po 0.2 odjednom, da ne bi seckala animacija
 			jumped+=.2;
 			x-=.2;
@@ -595,16 +622,23 @@ static void on_timer(int value)
 			glutPostRedisplay();
 
 			//ako je presao dovoljno prestaje da skace
-			if(jumped<JUMP_LEN){
 				glutTimerFunc(TIMER_INTERVAL, on_timer, TIMER_ID);
 			}			
 			else{
-				jump_ongoing=0;
+				jump_ongoing=0;				
+				if(is_dead()){
+					reset();
+					level=0;
+					z_fix++;
+				}    
+
 			}
 
 			break;
 
 		case DIAG_LEFT:
+			left_island=1;
+			if(jumped<JUMP_LEN){
 			//skacemo po 0.2 odjednom, da ne bi seckala animacija
 			jumped+=.2;
 			x+=.2;
@@ -616,15 +650,23 @@ static void on_timer(int value)
 			glutPostRedisplay();
 
 			//ako je presao dovoljno prestaje da skace
-			if(jumped<JUMP_LEN){
 				glutTimerFunc(TIMER_INTERVAL, on_timer, TIMER_ID);
 			}			
 			else{
-				jump_ongoing=0;
+				jump_ongoing=0;				
+				if(is_dead()){
+					reset();
+					level=0;
+					z_fix++;
+				}    
+
 			}
 
 			break;
 		case DIAG_RIGHT:
+			left_island=1;
+			//ako je presao dovoljno prestaje da skace
+			if(jumped<JUMP_LEN){
 			//skacemo po 0.2 odjednom, da ne bi seckala animacija
 			jumped+=.2;
 			x-=.2;
@@ -636,12 +678,43 @@ static void on_timer(int value)
 			//ponovo se iscrtava prozor	
 			glutPostRedisplay();
 
-			//ako je presao dovoljno prestaje da skace
-			if(jumped<JUMP_LEN){
 				glutTimerFunc(TIMER_INTERVAL, on_timer, TIMER_ID);
 			}			
 			else{
-				jump_ongoing=0;
+				jump_ongoing=0;				
+				if(is_dead()){
+					reset();
+					level=0;
+					z_fix++;
+				}    
+
+			}
+
+			break;
+			
+		case BACK:
+			if(jumped<JUMP_LEN){
+			//skacemo po 0.2 odjednom, da ne bi seckala animacija
+			jumped+=.2;
+			z-=.2;
+			
+			//formula kao gore
+			y=(-4*JUMP_HEIGHT*jumped*jumped)/(JUMP_LEN*JUMP_LEN)+4*JUMP_HEIGHT*jumped/JUMP_LEN;
+			
+			//ponovo se iscrtava prozor	
+			glutPostRedisplay();
+
+			//ako je presao dovoljno prestaje da skace
+				glutTimerFunc(TIMER_INTERVAL, on_timer, TIMER_ID);
+			}			
+			else{
+				jump_ongoing=0;				
+				if(is_dead()){
+					reset();
+					level=0;
+					z_fix++;
+				}    
+
 			}
 
 			break;
@@ -673,7 +746,9 @@ static void on_display(void){
 	
 	
 	//crtamo bezbedna ostrva
-	draw_islands();
+	glPushMatrix();
+		draw_islands();
+	glPopMatrix();
 	
 	
 	//generisemo putanju
@@ -683,7 +758,8 @@ static void on_display(void){
 	
 	//crtamo coveka
     glPushMatrix();
- 		glTranslatef(x, y+3, z-level*.75);
+ 		//glTranslatef(x, y+3, z);
+ 		glTranslatef(x, y+3, z-(double)z_fix*.75);
 		lego_man();
 	glPopMatrix();	
 	
@@ -695,7 +771,9 @@ static void on_display(void){
 	if(is_safe()){
 		reset();
 		level++;
+		z_fix++;
 	}    
+	
 	//ispisujemo nivo
 	sprintf(str, "level: %d", level);
 	level_text(str);
