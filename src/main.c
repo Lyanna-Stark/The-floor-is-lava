@@ -114,7 +114,7 @@ static int is_dead(){
 	int i;
 	//prolazi kroz niz koordinata kamenja i proverava da li se covek nalazi na kamenu ili je upao u lavu
 	for(i=0; i<num_of_rocks; i++){
-		if((path_x[i]<x+1 && path_x[i]>x-1) && (path_z[i]<z+1 && path_z[i]>z-1))
+		if((path_x[i]+2>x && path_x[i]-2<x) && (path_z[i]+2>z && path_z[i]-2<z))
 			return 0;
 	}
 	printf("dead");
@@ -574,7 +574,7 @@ static void on_timer(int value)
 			}
 			else{
 				jump_ongoing=0;
-				
+
 				if(is_dead()){
 					reset();
 					level=0;
@@ -756,6 +756,8 @@ static void on_display(void){
 	//	generate_path();
 	///}
 	
+	draw_path();
+
 	//crtamo coveka
     glPushMatrix();
  		//glTranslatef(x, y+3, z);
@@ -765,13 +767,12 @@ static void on_display(void){
 	
 	
 
-	draw_path();
-
 	//vracamo coveka nazad i generisemo novu putanju ako je dosao do bezbednog ostrva
 	if(is_safe()){
-		reset();
 		level++;
 		z_fix++;
+		
+		reset();
 	}    
 	
 	//ispisujemo nivo
