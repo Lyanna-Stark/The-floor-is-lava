@@ -59,7 +59,7 @@ int main(int argc, char** argv){
 	glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
 	
 	//kreiramo prozor
-	glutInitWindowSize(1200, 650);
+	glutInitWindowSize(1300, 800);
 	glutInitWindowPosition(0, 0);
 	glutCreateWindow(argv[0]);
 	
@@ -88,11 +88,13 @@ int main(int argc, char** argv){
 }
 
 void level_text(const char* tekst) {
-	//boja teksta
+	//boja teksta		
+	glDisable(GL_LIGHTING);
 	glColor3f(1, 1, 1);
 	//pozicija
 	glRasterPos3f(10, 10, 10);
 	glutBitmapString(GLUT_BITMAP_TIMES_ROMAN_24, tekst);
+	glEnable(GL_LIGHTING);
 }
 
 static void reset(){
@@ -145,7 +147,7 @@ static void on_reshape(int width, int height) {
 	//perspektiva tj odsecanje
 	glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    gluPerspective(45, (float) width / height, 1, 1500);
+    gluPerspective(50, (float) width / height, 1, 1500);
 }
 
 static void svetlo(){
@@ -266,7 +268,7 @@ static void lava_floor(GLuint lava_texture){
 			glVertex3f(400, 0, -400); 
 			glTexCoord2f(40,40);
 			glVertex3f(400, 0, 400); 
-			glTexCoord2f(0, 40);
+			glTexCoord2f(0, 60);
 			glVertex3f(-400, 0, 400);
 		glEnd();
 	
@@ -738,7 +740,7 @@ static void on_display(void){
 	glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 	//iz svih uglova
-	gluLookAt(-30+x/3, 17, 0, 0, 0, 0, 0, 1, 0);
+	gluLookAt(-30, 17, 0, 0, 0, 0, 0, 1, 0);
 	//front
 	//gluLookAt(0, 0, 10, 0, 0, 0, 0, 1, 0);
 	// profil
