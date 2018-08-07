@@ -1,7 +1,12 @@
+#ifndef _H_IMAGES_H_
+#define _H_IMAGES_H_
+
+
 /*
  * Dve strukture koje opisuju strukturu dva zaglavlja
  * kojima pocinje svaka slika u bmp formatu.
  */
+ 
 typedef struct {
   unsigned short type;
   unsigned int size;
@@ -46,3 +51,4 @@ void image_done(Image *image);
  */
 void image_read(Image *image, char *filename);
 
+#endif

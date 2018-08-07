@@ -59,8 +59,8 @@ int main(int argc, char** argv){
 	glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
 	
 	//kreiramo prozor
-	glutInitWindowSize(1300, 800);
-	glutInitWindowPosition(200, 200);
+	glutInitWindowSize(1200, 650);
+	glutInitWindowPosition(0, 0);
 	glutCreateWindow(argv[0]);
 	
 	//inicijalizuje se on display funkcija
@@ -145,7 +145,7 @@ static void on_reshape(int width, int height) {
 	//perspektiva tj odsecanje
 	glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    gluPerspective(50, (float) width / height, 1, 1700);
+    gluPerspective(45, (float) width / height, 1, 1500);
 }
 
 static void svetlo(){
@@ -262,11 +262,11 @@ static void lava_floor(GLuint lava_texture){
 			//glColor3f(.941, .4, 0);		
 			glTexCoord2f(0, 0);	
 			glVertex3f(-400, 0, -400); 
-			glTexCoord2f(10, 0);
+			glTexCoord2f(40, 0);
 			glVertex3f(400, 0, -400); 
-			glTexCoord2f(10, 0);
+			glTexCoord2f(40,40);
 			glVertex3f(400, 0, 400); 
-			glTexCoord2f(0, 0);
+			glTexCoord2f(0, 40);
 			glVertex3f(-400, 0, 400);
 		glEnd();
 	

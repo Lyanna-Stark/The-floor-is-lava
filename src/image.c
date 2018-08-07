@@ -1,3 +1,5 @@
+/*preuzeto sa https://github.com/MATF-RG16/RG16-005-3d-lavirint/blob/master/image.c*/
+
 #include <assert.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -95,6 +97,10 @@ void image_read(Image *image, char *filename) {
     exit(1);
   }
   assert(image->pixels != NULL);
+  
+  /* Neke bitmape imaju "visak" polja u zaglavlju.
+     offsetbits definise odakle pocinju podaci o pikselima. */
+  fread(image->pixels, sizeof(char), bfh.offsetbits-0x36, file);
 
   /* Ucitavaju se podaci o pikselima i smestaju u alocirani niz. */
   if (bih.bitcount == 24)
