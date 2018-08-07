@@ -106,7 +106,7 @@ static void reset(){
 	y=0;
 
 	z=-15;
-	printf("%lf, %lf, %lf\n", x, y, z);
+	//printf("%lf, %lf, %lf\n", x, y, z);
 	generate_path();
 	glutPostRedisplay();
 }
@@ -127,7 +127,7 @@ static int is_dead(){
 		if((path_x[i]+2>x && path_x[i]-2<x) && (path_z[i]+2>z && path_z[i]-2<z))
 			return 0;
 	}
-	printf("dead");
+//	printf("dead");
 	return 1;
 }
 
