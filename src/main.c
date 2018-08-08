@@ -17,7 +17,6 @@
 
 #define LAVATEXTURE "lava.bmp"
 
-static GLuint lava_texture;
 static int is_safe();
 static int is_dead();
 static int check_existing_rock(int x, int z, int num_of_rocks);
@@ -37,7 +36,7 @@ static void on_timer(int value);
 static void reset();
 static void initializeTexture(void);
 
-static double z_fix;
+static GLuint lava_texture;
 static char str[15];
 static int num_of_rocks;
 static int path_x[25];
@@ -50,7 +49,6 @@ static double x;
 static double y;
 static double z;
 static double jumped;
-
 static int direction;
 
 int main(int argc, char** argv){
@@ -68,8 +66,7 @@ int main(int argc, char** argv){
 	glutReshapeFunc(on_reshape);
 	glutKeyboardFunc(on_keyboard);
 	
-	
-	
+	//ukljucujemo svetlo
 	svetlo();	
 	
 	glClearColor(0, 0, 0, 0);
@@ -77,6 +74,7 @@ int main(int argc, char** argv){
 	glEnable(GL_NORMALIZE);
 	glEnable(GL_TEXTURE_2D);
 
+	//ukljucujemo teksture
 	initializeTexture();
 
 	level=0;
@@ -91,6 +89,7 @@ void level_text(const char* tekst) {
 	//boja teksta		
 	glDisable(GL_LIGHTING);
 	glColor3f(1, 1, 1);
+	
 	//pozicija
 	glRasterPos3f(10, 10, 10);
 	glutBitmapString(GLUT_BITMAP_TIMES_ROMAN_24, tekst);
@@ -104,10 +103,13 @@ static void reset(){
 	left_island=0;
 	x=0;
 	y=0;
-
 	z=-15;
 	//printf("%lf, %lf, %lf\n", x, y, z);
+	
+	//generise se nova putanja
 	generate_path();
+	
+	//novi prikaz na ekaranu
 	glutPostRedisplay();
 }
 static int is_safe(){
@@ -119,6 +121,7 @@ static int is_safe(){
 }
 
 static int is_dead(){
+	//ako nije ni na jedom kamenu ali je na jednom od ostrva nije mrtav
 	if(!left_island || is_safe())
 		return 0;
 	int i;
@@ -172,12 +175,6 @@ void lego_man(){
 	//da bi se videlo svetlo
 	glColorMaterial(GL_FRONT, GL_DIFFUSE);
 	glEnable(GL_COLOR_MATERIAL);
-	
-	/*
-	 * 
-	 * CRTAMO COVEKA
-	 * 
-	 */
 	
 	//trup
 	glPushMatrix();    
@@ -431,10 +428,12 @@ static void generate_path(){
 	num_of_rocks=1;
 	
 	//za svaki naredni red kamenja pozivamo funkciju koja generise kamenje u tom redu sve dok ne ,,preskoce" u naredni red tj dok random ne ispadne FORWARD ili DIAG_LEFT ili DIAG_RIGHT
+	
 	rock_line(-10);
 	rock_line(-5);
 	rock_line(0);
 	rock_line(5);
+	//nema potrebe za poslednjim redom jer se poslednji kamen generise u petlji za pretposlednji red
 	
 	//resetujemo new_level promenljivu da ne bi pri svakom pokretanju animacije generisao novu stazucd
 	new_level=0;
@@ -448,7 +447,6 @@ static void draw_path(){
 			rock();   	
 		glPopMatrix();	
 
-		//printf("%d: %d, %d\n", i, path_x[i], path_z[i]);
 	}
 }
 static void initializeTexture(void)
@@ -585,18 +583,15 @@ static void on_timer(int value)
 			}
 			else{
 				jump_ongoing=0;
-				//vracamo coveka nazad i generisemo novu putanju ako je dosao do bezbednog ostrva
+				//vracamo coveka nazad i generisemo novu putanju ako je dosao do bezbednog ostrva ili ako je poginuo
 				if(is_safe()){
 					level++;
-					z_fix++;
-					
 					reset();
 				}    
 	
 				if(is_dead()){
 					reset();
 					level=0;
-					z_fix++;
 				}    
 			}
 			break;
@@ -617,18 +612,17 @@ static void on_timer(int value)
 				glutTimerFunc(TIMER_INTERVAL, on_timer, TIMER_ID);
 			}			
 			else{
-				jump_ongoing=0;		//vracamo coveka nazad i generisemo novu putanju ako je dosao do bezbednog ostrva
+				jump_ongoing=0;		
+				//vracamo coveka nazad i generisemo novu putanju ako je dosao do bezbednog ostrva ili ako je poginuo
+				
 				if(is_safe()){
 					level++;
-					z_fix++;
-					
 					reset();
 				}    
 				
 				if(is_dead()){
 					reset();
 					level=0;
-					z_fix++;
 				}    
 
 			}
@@ -650,18 +644,17 @@ static void on_timer(int value)
 				glutTimerFunc(TIMER_INTERVAL, on_timer, TIMER_ID);
 			}			
 			else{
-				jump_ongoing=0;			//vracamo coveka nazad i generisemo novu putanju ako je dosao do bezbednog ostrva
+				jump_ongoing=0;							
+				//vracamo coveka nazad i generisemo novu putanju ako je dosao do bezbednog ostrva ili ako je poginuo
+
 				if(is_safe()){
 					level++;
-					z_fix++;
-					
 					reset();
 				}    
 			
 				if(is_dead()){
 					reset();
 					level=0;
-					z_fix++;
 				}    
 
 			}
@@ -685,18 +678,17 @@ static void on_timer(int value)
 				glutTimerFunc(TIMER_INTERVAL, on_timer, TIMER_ID);
 			}			
 			else{
-				jump_ongoing=0;				//vracamo coveka nazad i generisemo novu putanju ako je dosao do bezbednog ostrva
+				jump_ongoing=0;				
+				//vracamo coveka nazad i generisemo novu putanju ako je dosao do bezbednog ostrva ili ako je poginuo
+
 				if(is_safe()){
 					level++;
-					z_fix++;
-					
 					reset();
 				}    
 		
 				if(is_dead()){
 					reset();
 					level=0;
-					z_fix++;
 				}    
 
 			}
@@ -720,18 +712,17 @@ static void on_timer(int value)
 				glutTimerFunc(TIMER_INTERVAL, on_timer, TIMER_ID);
 			}			
 			else{
-				jump_ongoing=0;					//vracamo coveka nazad i generisemo novu putanju ako je dosao do bezbednog ostrva
+				jump_ongoing=0;							
+				//vracamo coveka nazad i generisemo novu putanju ako je dosao do bezbednog ostrva ili ako je poginuo
+
 				if(is_safe()){
 					level++;
-					z_fix++;
-					
 					reset();
 				}    
 				
 				if(is_dead()){
 					reset();
 					level=0;
-					z_fix++;
 				}    
 
 			}
@@ -754,10 +745,11 @@ static void on_timer(int value)
 				glutTimerFunc(TIMER_INTERVAL, on_timer, TIMER_ID);
 			}			
 			else{
-				jump_ongoing=0;					//vracamo coveka nazad i generisemo novu putanju ako je dosao do bezbednog ostrva
+				jump_ongoing=0;					
+				
+				//vracamo coveka nazad i generisemo novu putanju ako je dosao do bezbednog ostrva ili ako je poginuo
 				if(is_safe()){
 					level++;
-					z_fix++;
 					
 					reset();
 				}    
@@ -765,7 +757,6 @@ static void on_timer(int value)
 				if(is_dead()){
 					reset();
 					level=0;
-					z_fix++;
 				}    
 
 			}
@@ -803,12 +794,7 @@ static void on_display(void){
 		draw_islands();
 	glPopMatrix();
 	
-	
-	//generisemo putanju
-	//if(new_level){
-	//	generate_path();
-	///}
-	
+	//crtamo putanju
 	draw_path();
 
 	//crtamo coveka
@@ -817,8 +803,6 @@ static void on_display(void){
  		glTranslatef(x, y+3, z);
 		lego_man();
 	glPopMatrix();	
-	
-	
 
 
 	//ispisujemo nivo
