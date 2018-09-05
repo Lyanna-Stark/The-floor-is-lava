@@ -269,12 +269,16 @@ void on_timer(int value)
 			jumped+=.2;
 			x+=.2;
 			
+            if(left_island){
 			//formula kao gore
 			y=(-4*JUMP_HEIGHT*jumped*jumped)/(JUMP_LEN*JUMP_LEN)+4*JUMP_HEIGHT*jumped/JUMP_LEN;
-			
-			//ponovo se iscrtava prozor	
+            }
+            else{
+            y=0;
+            }
+            //ponovo se iscrtava prozor	
 			glutPostRedisplay();
-
+        
 			//ako je presao dovoljno prestaje da skace
 				glutTimerFunc(TIMER_INTERVAL, on_timer, TIMER_ID);
 			}			
@@ -301,9 +305,12 @@ void on_timer(int value)
 			jumped+=.2;
 			x-=.2;
 			
+            if(left_island){
 			//formula kao gore
 			y=(-4*JUMP_HEIGHT*jumped*jumped)/(JUMP_LEN*JUMP_LEN)+4*JUMP_HEIGHT*jumped/JUMP_LEN;
-			
+            } else{
+                y=0;
+            }
 			//ponovo se iscrtava prozor	
 			glutPostRedisplay();
 
